@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CJPTV.in - Latest India, Bihar & World News | Your News. Your Voice.</title>
+  <meta name="description" content="CJPTV.in delivers fast, credible, and comprehensive news from Bihar, India, and around the world, founded by Sambhav Gupta.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              orange: '#FF5722',
+              orangeLight: '#FF8A65',
+              dark: '#121212',
+              header: '#1A1A1A',
+              card: '#222222',
+              border: '#333333',
+              red: '#E53935'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Playfair Display"', 'serif'],
+            cinzel: ['"Cinzel"', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #121212;
+      color: #E0E0E0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .ticker-scroll {
+      display: inline-block;
+      white-space: nowrap;
+      animation: ticker 30s linear infinite;
+    }
+    .ticker-scroll:hover {
+      animation-play-state: paused;
+    }
+    @keyframes ticker {
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-50%, 0, 0); }
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .line-clamp-3 {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="bg-[#121212] text-gray-200 min-h-screen flex flex-col antialiased selection:bg-[#FF5722] selection:text-white">
+
+  <!-- Top Utility Bar -->
+  <div class="bg-[#181818] border-b border-[#2A2A2A] text-xs py-1.5 px-4 sm:px-8 flex justify-between items-center text-gray-400">
+    <div class="flex items-center space-x-3">
+      <span class="font-bold text-[#FF5722] flex items-center gap-1.5">
+        <i class="fa-solid fa-globe text-xs"></i> cjptv.in
+      </span>
+      <span class="hidden sm:inline text-gray-600">|</span>
+      <span id="currentDate" class="hidden sm:inline text-gray-400"></span>
+    </div>
+    <div class="flex items-center space-x-4 text-[11px]">
+      <span class="font-semibold text-gray-300">EDITION: PATNA / NATIONAL</span>
+      <span class="text-amber-400 flex items-center gap-1">
+        <i class="fa-solid fa-sun"></i> 32°C Patna
+      </span>
+    </div>
+  </div>
+
+  <!-- Main Website Masthead -->
+  <header class="bg-[#1A1A1A] border-b border-[#333333] sticky top-0 z-40 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-3 flex items-center justify-between">
+      
+      <!-- Left: Hamburger Menu -->
+      <div class="flex items-center space-x-3">
+        <button onclick="toggleMenu()" class="w-10 h-10 rounded-full bg-[#242424] border border-[#333333] flex items-center justify-center text-gray-300 hover:text-white hover:border-[#FF5722] transition">
+          <i class="fa-solid fa-bars text-lg"></i>
+        </button>
+        <button onclick="filterCategory(null)" class="hidden md:flex text-xs font-semibold text-gray-400 hover:text-[#FF5722] items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#242424] border border-[#333333]">
+          <i class="fa-solid fa-house"></i> Home
+        </button>
+      </div>
+
+      <!-- Center: Logo -->
+      <div onclick="filterCategory(null)" class="cursor-pointer text-center group">
+        <div class="flex items-center justify-center leading-none">
+          <span class="text-3xl sm:text-4xl font-black tracking-tight text-white font-cinzel">CJPTV</span>
+          <span class="text-3xl sm:text-4xl font-black text-[#FF5722] font-cinzel">.IN</span>
+        </div>
+        <div class="text-[9px] sm:text-[10px] tracking-[0.25em] font-bold text-gray-400 mt-1 uppercase">
+          Your News. Your Voice.
+        </div>
+      </div>
+
+      <!-- Right: Search & Live Button -->
+      <div class="flex items-center space-x-2.5">
+        <button onclick="openSearchModal()" class="w-10 h-10 rounded-full bg-[#242424] border border-[#333333] flex items-center justify-center text-gray-300 hover:text-white hover:border-[#FF5722] transition">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        <button onclick="filterLiveUpdates()" class="flex items-center space-x-1.5 bg-[#E53935] hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-full transition shadow-md">
+          <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+          <span>LIVE</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Category Nav Bar -->
+    <nav class="bg-[#161616] border-t border-[#262626] overflow-x-auto scrollbar-none">
+      <div class="max-w-7xl mx-auto px-4 sm:px-8 flex items-center space-x-6 text-sm font-semibold whitespace-nowrap py-2.5" id="categoryNav">
+        <button onclick="filterCategory(null)" class="category-tab active text-[#FF5722] border-b-2 border-[#FF5722] pb-0.5" data-category="all">
+          Top Stories
+        </button>
+        <button onclick="filterCategory('bihar')" class="category-tab text-gray-400 hover:text-white transition pb-0.5" data-category="bihar">
+          Bihar
+        </button>
+        <button onclick="filterCategory('india')" class="category-tab text-gray-400 hover:text-white transition pb-0.5" data-category="india">
+          India
+        </button>
+        <button onclick="filterCategory('politics')" class="category-tab text-gray-400 hover:text-white transition pb-0.5" data-category="politics">
+          Politics
+        </button>
+        <button onclick="filterCategory('business')" class="category-tab text-gray-400 hover:text-white transition pb-0.5" data-category="business">
+          Business
+        </button>
+        <button onclick="filterCategory('sports')" class="category-tab text-gray-400 hover:text-white transition pb-0.5" data-category="sports">
+          Sports
+        </button>
+        <button onclick="filterCategory('technology')" class="category-tab text-gray-400 hover:text-white transition pb-0.5" data-category="technology">
+          Tech
+        </button>
+        <button onclick="filterCategory('world')" class="category-tab text-gray-400 hover:text-white transition pb-0.5" data-category="world">
+          World
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Breaking Ticker -->
+  <div class="bg-[#B71C1C] text-white flex items-center text-xs font-bold overflow-hidden border-b border-red-900 shadow-inner">
+    <div class="bg-[#7F0000] px-4 py-2 flex items-center space-x-2 z-10 shrink-0 uppercase tracking-wider text-[11px]">
+      <i class="fa-solid fa-bolt text-amber-300"></i>
+      <span>Breaking</span>
+    </div>
+    <div class="overflow-hidden whitespace-nowrap w-full py-1.5 px-2">
+      <div id="tickerContent" class="ticker-scroll flex items-center space-x-12 text-sm font-medium">
+        <span>Patna Metro Phase 1 Priority Corridor trial run begins ahead of schedule</span>
+        <span>•</span>
+        <span>India seals landmark renewable energy pact; Rs 45,000 Crore investment outlined</span>
+        <span>•</span>
+        <span>Bihar Board announces updated exam guidelines and digital answer sheet verification</span>
+        <span>•</span>
+        <span>Global Tech Summit 2026 kicks off with new AI safeguards framework</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main News Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-8 py-6 flex-1 w-full">
+
+    <!-- Active Category Banner (when filtered) -->
+    <div id="categoryHeader" class="hidden mb-6 bg-[#1F1F1F] border border-[#333333] rounded-xl p-4 flex justify-between items-center">
+      <div>
+        <span class="text-xs uppercase tracking-wider font-bold text-[#FF5722]">Browsing Category</span>
+        <h2 id="categoryTitle" class="text-xl font-bold text-white capitalize">Category</h2>
+      </div>
+      <button onclick="filterCategory(null)" class="text-xs text-[#FF5722] hover:underline font-semibold flex items-center gap-1">
+        <i class="fa-solid fa-arrow-left"></i> View All Stories
+      </button>
+    </div>
+
+    <!-- Hero / Lead Story Section -->
+    <section id="heroSection" class="mb-8">
+      <div id="heroCard" class="bg-[#1E1E1E] border border-[#333333] rounded-2xl overflow-hidden shadow-2xl hover:border-[#FF5722] transition duration-300 grid grid-cols-1 lg:grid-cols-12 gap-0">
+        <div class="lg:col-span-7 relative h-72 lg:h-[420px] overflow-hidden bg-[#111]">
+          <img id="heroImage" src="https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80" alt="Hero News" class="w-full h-full object-cover">
+          <span class="absolute top-4 left-4 bg-[#FF5722] text-white text-xs font-black uppercase px-3 py-1.5 rounded-md tracking-wider shadow-md">
+            Lead Story
+          </span>
+        </div>
+        <div class="lg:col-span-5 p-6 lg:p-8 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center space-x-2 text-xs text-gray-400 mb-3">
+              <span id="heroCategory" class="text-[#FF8A65] font-bold uppercase tracking-wider">Patna & Bihar</span>
+              <span>•</span>
+              <span id="heroDate">15 mins ago</span>
+            </div>
+            <h1 id="heroTitle" class="text-2xl lg:text-3xl font-bold text-white font-serif hover:text-[#FF5722] transition cursor-pointer leading-tight mb-4">
+              Patna Metro Construction Fast-Tracked: Underground Tunnel Boring Starts for Corridor 2
+            </h1>
+            <p id="heroSummary" class="text-gray-300 text-sm leading-relaxed mb-6 line-clamp-3">
+              The Urban Development Department and Patna Metro Rail Corporation have expedited tunneling operations beneath Fraser Road to ensure project completion by mid-2027.
+            </p>
+          </div>
+          <div class="flex items-center justify-between border-t border-[#2F2F2F] pt-4 mt-auto">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center font-bold text-white text-xs">
+                SG
+              </div>
+              <div>
+                <div class="text-xs font-bold text-white">Sambhav Gupta</div>
+                <div class="text-[10px] text-gray-400">Founder & Editor-in-Chief</div>
+              </div>
+            </div>
+            <button onclick="readHeroArticle()" class="bg-[#FF5722] hover:bg-orange-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition">
+              Read Story <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trending Row -->
+    <section class="mb-10" id="trendingSection">
+      <div class="flex items-center space-x-2 mb-4">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#FF5722]"></span>
+        <h3 class="text-xs font-extrabold uppercase tracking-widest text-[#FF5722]">Trending & Viral</h3>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="trendingList">
+        <!-- Trending cards injected dynamically -->
+      </div>
+    </section>
+
+    <!-- Video Reports Carousel -->
+    <section class="mb-10 bg-[#191919] border border-[#2B2B2B] rounded-2xl p-5" id="videoSection">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#E53935]"></span>
+          <h3 class="text-xs font-extrabold uppercase tracking-widest text-white">Video Desk & Ground Reports</h3>
+        </div>
+        <span class="text-xs text-gray-400">Curated Ground Coverage</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="videoList">
+        <!-- Video cards injected dynamically -->
+      </div>
+    </section>
+
+    <!-- Main Feed Grid -->
+    <section>
+      <div class="flex items-center space-x-2 mb-6">
+        <span class="w-2.5 h-2.5 rounded-full bg-white"></span>
+        <h3 class="text-xs font-extrabold uppercase tracking-widest text-white" id="feedHeading">Latest Stories & Special Reports</h3>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="articlesGrid">
+        <!-- News cards injected dynamically -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Website Footer -->
+  <footer class="bg-[#151515] border-t border-[#2B2B2B] mt-16 text-gray-400">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+        
+        <!-- Col 1: About & Founder -->
+        <div class="md:col-span-2 space-y-4">
+          <div class="flex items-center space-x-2">
+            <span class="text-2xl font-black text-white font-cinzel">CJPTV</span>
+            <span class="text-2xl font-black text-[#FF5722] font-cinzel">.IN</span>
+          </div>
+          <p class="text-xs text-gray-400 leading-relaxed max-w-md">
+            CJPTV.in is an independent digital news platform founded by Sambhav Gupta, dedicated to fearless, credible, and grassroots journalism covering Bihar, India, and global affairs.
+          </p>
+          <div class="bg-[#1E1E1E] p-3 rounded-xl border border-[#2F2F2F] flex items-center space-x-3 max-w-md">
+            <i class="fa-solid fa-award text-[#FF5722] text-xl"></i>
+            <div>
+              <div class="text-xs font-bold text-white">Sambhav Gupta</div>
+              <div class="text-[10px] text-gray-400">Founder & Editor-in-Chief</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Col 2: Categories -->
+        <div>
+          <h4 class="text-xs font-extrabold uppercase tracking-wider text-white mb-4">Editorial Beats</h4>
+          <ul class="space-y-2 text-xs">
+            <li><button onclick="filterCategory('bihar')" class="hover:text-[#FF5722] transition">Bihar News</button></li>
+            <li><button onclick="filterCategory('india')" class="hover:text-[#FF5722] transition">National News</button></li>
+            <li><button onclick="filterCategory('politics')" class="hover:text-[#FF5722] transition">Politics & Governance</button></li>
+            <li><button onclick="filterCategory('business')" class="hover:text-[#FF5722] transition">Economy & Startups</button></li>
+            <li><button onclick="filterCategory('sports')" class="hover:text-[#FF5722] transition">Sports & Cricket</button></li>
+            <li><button onclick="filterCategory('technology')" class="hover:text-[#FF5722] transition">Tech & Innovation</button></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Quick Links & Legal -->
+        <div>
+          <h4 class="text-xs font-extrabold uppercase tracking-wider text-white mb-4">Information & Trust</h4>
+          <ul class="space-y-2 text-xs">
+            <li><button onclick="openAboutModal()" class="hover:text-[#FF5722] transition">About Us & Leadership</button></li>
+            <li><button onclick="openPolicyModal('terms')" class="hover:text-[#FF5722] transition">Code of Ethics & Policies</button></li>
+            <li><button onclick="openPolicyModal('privacy')" class="hover:text-[#FF5722] transition">Privacy & Cookies</button></li>
+            <li><button onclick="openPolicyModal('contact')" class="hover:text-[#FF5722] transition">Contact & Press Grievances</button></li>
+            <li><button onclick="openStaffModal()" class="text-gray-600 hover:text-gray-400 transition flex items-center gap-1"><i class="fa-solid fa-lock text-[10px]"></i> Staff Desk</button></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="border-t border-[#262626] pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500">
+        <div>© 2026 CJPTV.in. All Rights Reserved. Founded by Sambhav Gupta.</div>
+        <div class="mt-2 sm:mt-0 flex space-x-4">
+          <span>Fast</span>
+          <span>•</span>
+          <span>Credible</span>
+          <span>•</span>
+          <span>Independent</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Slide-out Website Drawer Menu -->
+  <div id="menuDrawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden transition-opacity">
+    <div class="fixed top-0 left-0 bottom-0 w-80 max-w-full bg-[#181818] border-r border-[#333333] p-6 overflow-y-auto flex flex-col justify-between">
+      <div>
+        <div class="flex justify-between items-center pb-4 border-b border-[#2A2A2A] mb-6">
+          <div class="flex items-center space-x-2">
+            <span class="text-2xl font-black text-white font-cinzel">CJPTV</span>
+            <span class="text-2xl font-black text-[#FF5722] font-cinzel">.IN</span>
+          </div>
+          <button onclick="toggleMenu()" class="w-8 h-8 rounded-full bg-[#242424] text-gray-400 hover:text-white flex items-center justify-center">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Quick Sections in Menu -->
+        <div class="mb-6">
+          <h5 class="text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-3">News Beats</h5>
+          <div class="space-y-1 text-sm">
+            <button onclick="filterCategory(null); toggleMenu();" class="w-full text-left py-2 px-3 rounded-lg hover:bg-[#252525] text-white flex items-center justify-between">
+              <span>Top Stories</span>
+              <i class="fa-solid fa-chevron-right text-xs text-gray-500"></i>
+            </button>
+            <button onclick="filterCategory('bihar'); toggleMenu();" class="w-full text-left py-2 px-3 rounded-lg hover:bg-[#252525] text-gray-300 hover:text-white flex items-center justify-between">
+              <span>Bihar Desk</span>
+              <i class="fa-solid fa-chevron-right text-xs text-gray-500"></i>
+            </button>
+            <button onclick="filterCategory('india'); toggleMenu();" class="w-full text-left py-2 px-3 rounded-lg hover:bg-[#252525] text-gray-300 hover:text-white flex items-center justify-between">
+              <span>National</span>
+              <i class="fa-solid fa-chevron-right text-xs text-gray-500"></i>
+            </button>
+            <button onclick="filterCategory('politics'); toggleMenu();" class="w-full text-left py-2 px-3 rounded-lg hover:bg-[#252525] text-gray-300 hover:text-white flex items-center justify-between">
+              <span>Politics</span>
+              <i class="fa-solid fa-chevron-right text-xs text-gray-500"></i>
+            </button>
+            <button onclick="filterCategory('business'); toggleMenu();" class="w-full text-left py-2 px-3 rounded-lg hover:bg-[#252525] text-gray-300 hover:text-white flex items-center justify-between">
+              <span>Business</span>
+              <i class="fa-solid fa-chevron-right text-xs text-gray-500"></i>
+            </button>
+            <button onclick="filterCategory('sports'); toggleMenu();" class="w-full text-left py-2 px-3 rounded-lg hover:bg-[#252525] text-gray-300 hover:text-white flex items-center justify-between">
+              <span>Sports</span>
+              <i class="fa-solid fa-chevron-right text-xs text-gray-500"></i>
+            </button>
+            <button onclick="filterCategory('technology'); toggleMenu();" class="w-full text-left py-2 px-3 rounded-lg hover:bg-[#252525] text-gray-300 hover:text-white flex items-center justify-between">
+              <span>Tech & AI</span>
+              <i class="fa-solid fa-chevron-right text-xs text-gray-500"></i>
+            </button>
+            <button onclick="filterCategory('world'); toggleMenu();" class="w-full text-left py-2 px-3 rounded-lg hover:bg-[#252525] text-gray-300 hover:text-white flex items-center justify-between">
+              <span>World</span>
+              <i class="fa-solid fa-chevron-right text-xs text-gray-500"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <h5 class="text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-3">About & Trust</h5>
+          <div class="space-y-1 text-sm">
+            <button onclick="openAboutModal(); toggleMenu();" class="w-full text-left py-2 px-3 rounded-lg hover:bg-[#252525] text-gray-300 hover:text-white">
+              About Founder & Mission
+            </button>
+            <button onclick="openPolicyModal('terms'); toggleMenu();" class="w-full text-left py-2 px-3 rounded-lg hover:bg-[#252525] text-gray-300 hover:text-white">
+              Editorial Policy
+            </button>
+            <button onclick="openPolicyModal('privacy'); toggleMenu();" class="w-full text-left py-2 px-3 rounded-lg hover:bg-[#252525] text-gray-300 hover:text-white">
+              Privacy Policy
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Secret Editorial Portal link in Drawer -->
+      <div class="pt-4 border-t border-[#262626]">
+        <button onclick="openStaffModal(); toggleMenu();" class="w-full text-center py-2 text-xs text-gray-600 hover:text-gray-400 flex items-center justify-center gap-1.5 transition">
+          <i class="fa-solid fa-lock text-[10px]"></i>
+          <span>Editorial Publishing Desk</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Article Detail Modal -->
+  <div id="articleModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden overflow-y-auto p-4 sm:p-6 flex items-center justify-center">
+    <div class="bg-[#1C1C1C] border border-[#333333] rounded-2xl max-w-3xl w-full p-6 sm:p-8 my-8 relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeArticleModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#2B2B2B] text-gray-300 hover:text-white flex items-center justify-center">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="flex items-center space-x-2 text-xs text-[#FF8A65] font-bold uppercase mb-3" id="modalCategory">
+        Category
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-white font-serif mb-4 leading-snug" id="modalTitle">
+        Article Title
+      </h1>
+
+      <div class="flex items-center space-x-3 pb-4 mb-4 border-b border-[#2C2C2C] text-xs text-gray-400">
+        <div class="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center text-white font-bold">
+          SG
+        </div>
+        <div>
+          <span class="font-bold text-white" id="modalAuthor">Sambhav Gupta</span>
+          <span class="text-gray-500">•</span>
+          <span id="modalDate">Today</span>
+        </div>
+      </div>
+
+      <img id="modalImage" src="" alt="" class="w-full h-72 sm:h-96 object-cover rounded-xl mb-6 bg-[#111]">
+
+      <div class="prose prose-invert max-w-none text-gray-300 leading-relaxed text-sm sm:text-base space-y-4" id="modalContent">
+        <!-- Content -->
+      </div>
+
+      <div class="mt-8 pt-6 border-t border-[#2C2C2C] flex justify-between items-center">
+        <div class="text-xs text-gray-400">
+          Published by <strong class="text-white">CJPTV.in</strong>
+        </div>
+        <button onclick="shareArticleModal()" class="bg-[#2B2B2B] hover:bg-[#3B3B3B] text-white text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center gap-1.5">
+          <i class="fa-solid fa-share-nodes"></i> Share Story
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Modal -->
+  <div id="searchModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden p-4 sm:p-8 flex items-start justify-center pt-20">
+    <div class="bg-[#1C1C1C] border border-[#333333] rounded-2xl max-w-2xl w-full p-6 relative shadow-2xl">
+      <div class="flex items-center space-x-3 pb-4 border-b border-[#2C2C2C]">
+        <i class="fa-solid fa-magnifying-glass text-gray-400 text-lg"></i>
+        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Search news by headline, keywords, or topics..." class="bg-transparent text-white text-base focus:outline-none w-full placeholder-gray-500">
+        <button onclick="closeSearchModal()" class="text-gray-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <div id="searchResults" class="mt-4 max-h-80 overflow-y-auto space-y-2">
+        <p class="text-xs text-gray-500 text-center py-6">Type to search articles across CJPTV.in</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secret Staff Editorial Desk (Protected by PIN 061289) -->
+  <div id="staffModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden p-4 sm:p-8 flex items-center justify-center">
+    <div class="bg-[#1B1B1B] border border-[#333333] rounded-2xl max-w-2xl w-full p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeStaffModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+      <!-- PIN Auth Screen -->
+      <div id="staffAuthSection" class="text-center py-8">
+        <div class="w-16 h-16 rounded-full bg-[#2A2A2A] border border-[#3A3A3A] flex items-center justify-center mx-auto mb-4 text-[#FF5722] text-2xl">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2">Editorial Desk Gate</h3>
+        <p class="text-xs text-gray-400 mb-6 max-w-sm mx-auto">Please enter authorized security PIN to access the publishing desk.</p>
+        
+        <div class="max-w-xs mx-auto space-y-3">
+          <input type="password" id="staffPinInput" placeholder="••••••" maxlength="10" class="w-full text-center tracking-widest text-lg bg-[#252525] border border-[#3A3A3A] text-white rounded-xl p-3 focus:outline-none focus:border-[#FF5722]">
+          <div id="pinError" class="text-xs text-red-400 hidden">Access Denied: Incorrect Security PIN</div>
+          <button onclick="verifyStaffPin()" class="w-full bg-[#FF5722] hover:bg-orange-600 text-white font-bold text-sm py-3 rounded-xl transition">
+            Verify & Enter Desk
+          </button>
+        </div>
+      </div>
+
+      <!-- Publishing Desk Panel (Shown once PIN 061289 is verified) -->
+      <div id="staffPublishSection" class="hidden">
+        <div class="flex justify-between items-center pb-4 border-b border-[#2D2D2D] mb-6">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-green-400 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-green-500"></span> Authenticated Editor
+            </span>
+            <h3 class="text-lg font-bold text-white">Publish New Article</h3>
+          </div>
+          <button onclick="resetDemoData()" class="text-xs bg-[#2A2A2A] text-gray-300 hover:text-white px-3 py-1.5 rounded-lg">
+            Reset Demo Data
+          </button>
+        </div>
+
+        <form id="publishForm" onsubmit="handlePublishArticle(event)" class="space-y-4 text-xs">
+          <div>
+            <label class="block text-gray-300 font-semibold mb-1">Headline / Title *</label>
+            <input type="text" id="articleTitleInput" required placeholder="Enter compelling headline..." class="w-full bg-[#242424] border border-[#3A3A3A] text-white rounded-lg p-2.5 focus:outline-none focus:border-[#FF5722]">
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-gray-300 font-semibold mb-1">Category *</label>
+              <select id="articleCategoryInput" required class="w-full bg-[#242424] border border-[#3A3A3A] text-white rounded-lg p-2.5 focus:outline-none focus:border-[#FF5722]">
+                <option value="bihar">Bihar News</option>
+                <option value="india">National News</option>
+                <option value="politics">Politics</option>
+                <option value="business">Business</option>
+                <option value="sports">Sports</option>
+                <option value="technology">Technology</option>
+                <option value="world">World</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-gray-300 font-semibold mb-1">Author Name *</label>
+              <input type="text" id="articleAuthorInput" value="Sambhav Gupta" required class="w-full bg-[#242424] border border-[#3A3A3A] text-white rounded-lg p-2.5 focus:outline-none focus:border-[#FF5722]">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-gray-300 font-semibold mb-1">Image URL (Unsplash or direct image link)</label>
+            <input type="url" id="articleImageInput" placeholder="https://images.unsplash.com/..." class="w-full bg-[#242424] border border-[#3A3A3A] text-white rounded-lg p-2.5 focus:outline-none focus:border-[#FF5722]">
+          </div>
+
+          <div>
+            <label class="block text-gray-300 font-semibold mb-1">Short Lead Summary *</label>
+            <textarea id="articleSummaryInput" rows="2" required placeholder="Brief 1-2 sentence lead summary..." class="w-full bg-[#242424] border border-[#3A3A3A] text-white rounded-lg p-2.5 focus:outline-none focus:border-[#FF5722]"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-gray-300 font-semibold mb-1">Full Article Body *</label>
+            <textarea id="articleBodyInput" rows="5" required placeholder="Full journalistic reporting body paragraphs..." class="w-full bg-[#242424] border border-[#3A3A3A] text-white rounded-lg p-2.5 focus:outline-none focus:border-[#FF5722]"></textarea>
+          </div>
+
+          <div class="flex items-center space-x-6 pt-2">
+            <label class="flex items-center space-x-2 cursor-pointer text-gray-300">
+              <input type="checkbox" id="isBreakingInput" class="rounded text-[#FF5722] focus:ring-[#FF5722]">
+              <span>Set as Breaking Ticker</span>
+            </label>
+            <label class="flex items-center space-x-2 cursor-pointer text-gray-300">
+              <input type="checkbox" id="isFeaturedInput" class="rounded text-[#FF5722] focus:ring-[#FF5722]">
+              <span>Make Lead Story</span>
+            </label>
+          </div>
+
+          <button type="submit" class="w-full bg-[#FF5722] hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition text-sm mt-4">
+            Publish Story Live Now
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- About / Leadership Modal -->
+  <div id="aboutModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden p-4 sm:p-8 flex items-center justify-center">
+    <div class="bg-[#1C1C1C] border border-[#333333] rounded-2xl max-w-xl w-full p-6 sm:p-8 relative">
+      <button onclick="closeAboutModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+      <div class="flex items-center space-x-3 mb-4">
+        <div class="w-12 h-12 rounded-full bg-[#FF5722] flex items-center justify-center font-bold text-white text-lg">
+          SG
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-white">Sambhav Gupta</h3>
+          <p class="text-xs text-[#FF8A65] font-semibold">Founder & Editor-in-Chief</p>
+        </div>
+      </div>
+      <p class="text-xs text-gray-300 leading-relaxed mb-4">
+        Sambhav Gupta founded CJPTV.in with a vision to build a modern, high-speed digital journalism network empowering readers across Bihar, India, and the world with factual reporting, real-time breaking tickers, and zero bias.
+      </p>
+      <div class="bg-[#242424] p-3 rounded-xl border border-[#333333] text-xs space-y-1 text-gray-400">
+        <div><strong>HQ:</strong> Patna, Bihar, India</div>
+        <div><strong>Editorial Standards:</strong> Press Council of India & Digital Media Ethics Code</div>
+        <div><strong>Portal Domain:</strong> cjptv.in</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Javascript Logic -->
+  <script>
+    // Initial News Data
+    const DEFAULT_ARTICLES = [
+      {
+        id: 1,
+        title: "Patna Metro Construction Fast-Tracked: Underground Tunnel Boring Starts for Corridor 2",
+        category: "bihar",
+        categoryName: "Bihar",
+        author: "Sambhav Gupta",
+        date: "15 mins ago",
+        image: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80",
+        summary: "The Urban Development Department and Patna Metro Rail Corporation have expedited tunneling operations beneath Fraser Road to ensure project completion by mid-2027.",
+        content: "PATNA — The Urban Development Department along with the Patna Metro Rail Corporation (PMRC) announced on Friday that underground tunnel boring machine (TBM) operations have formally commenced for Corridor 2. The project connects Patna Junction to New ISBT via key arterial nodes.\n\nAccording to officials, double-shield tunneling technology is being deployed to minimize surface traffic disruption along Frazer Road and Dak Bungalow crossing. Special environmental sensors have been placed along the perimeter to monitor vibration levels.",
+        isFeatured: true,
+        isTrending: true
+      },
+      {
+        id: 2,
+        title: "India Renews Historic Clean Energy Pact; Allocates Rs 45,000 Cr for Grid Modernization",
+        category: "india",
+        categoryName: "India",
+        author: "National Bureau",
+        date: "1 hour ago",
+        image: "https://images.unsplash.com/photo-1509391365360-2e959784a276?w=800&q=80",
+        summary: "New initiatives in high-capacity solar corridors and inter-state transmission lines to boost rural and industrial clean power availability.",
+        content: "NEW DELHI — In a landmark policy rollout, the Ministry of Power has greenlit a comprehensive modernization package worth Rs 45,000 Crore aimed at integrating green hydrogen and solar park corridors into the central electricity grid.",
+        isFeatured: false,
+        isTrending: true
+      },
+      {
+        id: 3,
+        title: "Bihar Board Class 10 & 12 Digital Verification System Goes Live",
+        category: "bihar",
+        categoryName: "Bihar",
+        author: "Education Desk",
+        date: "2 hours ago",
+        image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80",
+        summary: "BSEB introduces QR-code enabled marksheets and instant verification portals for college and job applicants statewide.",
+        content: "PATNA — The Bihar School Examination Board (BSEB) has launched its revamped digital verification portal allowing students, universities, and employers to authenticate academic certificates instantly via secure encrypted QR codes.",
+        isFeatured: false,
+        isTrending: true
+      },
+      {
+        id: 4,
+        title: "Global Tech Summit 2026: New AI Accountability Standards Adopted by 40 Nations",
+        category: "technology",
+        categoryName: "Tech",
+        author: "Tech Bureau",
+        date: "3 hours ago",
+        image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80",
+        summary: "Tech leaders and global diplomats agree on mandatory watermarking for synthetic media and algorithmic safety audits.",
+        content: "GENEVA — Delegates from over forty countries wrapped up the three-day AI Governance Summit by ratifying a unified framework that establishes safety baselines and mandatory watermarks for deep learning systems.",
+        isFeatured: false,
+        isTrending: false
+      },
+      {
+        id: 5,
+        title: "Sensex Surges 680 Points on Strong Auto and Banking Q3 Earnings",
+        category: "business",
+        categoryName: "Business",
+        author: "Markets Desk",
+        date: "4 hours ago",
+        image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80",
+        summary: "Domestic benchmark indices rallied led by heavyweights in auto manufacturing and private sector financial institutions.",
+        content: "MUMBAI — Indian stock indices witnessed bullish momentum on Friday as strong quarterly revenues from key automotive leaders and private lenders spurred sustained domestic institutional buying.",
+        isFeatured: false,
+        isTrending: false
+      },
+      {
+        id: 6,
+        title: "India vs England 3rd Test: Stellar Bowling Attack Puts Hosts in Commanding Position",
+        category: "sports",
+        categoryName: "Sports",
+        author: "Sports Desk",
+        date: "5 hours ago",
+        image: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=800&q=80",
+        summary: "Pacers claim crucial top-order wickets before lunch on Day 3, restricting the visitors to 184 runs in the first innings.",
+        content: "LEEDS — A disciplined spell of reverse swing and sharp seam movement allowed India to dominate the morning session of Day 3, picking up four wickets inside the opening twenty overs.",
+        isFeatured: false,
+        isTrending: false
+      }
+    ];
+
+    const DEFAULT_VIDEOS = [
+      {
+        id: 1,
+        title: "Ground Report: Inside the new Patna Metro Tunnel Construction Zone",
+        duration: "04:32",
+        views: "42K",
+        thumbnail: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=600&q=80"
+      },
+      {
+        id: 2,
+        title: "Special Investigation: How Bihar's Rural Solar Grid is Changing Farming",
+        duration: "07:15",
+        views: "28K",
+        thumbnail: "https://images.unsplash.com/photo-1509391365360-2e959784a276?w=600&q=80"
+      },
+      {
+        id: 3,
+        title: "Founder Sambhav Gupta on Independent Digital Journalism & CJPTV's Mission",
+        duration: "05:40",
+        views: "65K",
+        thumbnail: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&q=80"
+      }
+    ];
+
+    // Local Storage Management
+    function getArticles() {
+      const saved = localStorage.getItem('cjptv_articles');
+      if (saved) {
+        try { return JSON.parse(saved); } catch(e) {}
+      }
+      return DEFAULT_ARTICLES;
+    }
+
+    function saveArticles(articles) {
+      localStorage.setItem('cjptv_articles', JSON.stringify(articles));
+    }
+
+    let currentCategoryFilter = null;
+
+    // Initialize Page
+    document.addEventListener('DOMContentLoaded', () => {
+      // Set Formatted Date
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-US', options);
+
+      renderAll();
+    });
+
+    function renderAll() {
+      const articles = getArticles();
+      renderHero(articles);
+      renderTrending(articles);
+      renderVideos();
+      renderArticlesGrid(articles);
+    }
+
+    function renderHero(articles) {
+      const hero = articles.find(a => a.isFeatured) || articles[0];
+      if (!hero) return;
+
+      document.getElementById('heroImage').src = hero.image;
+      document.getElementById('heroCategory').innerText = hero.categoryName || hero.category;
+      document.getElementById('heroDate').innerText = hero.date || 'Recent';
+      document.getElementById('heroTitle').innerText = hero.title;
+      document.getElementById('heroSummary').innerText = hero.summary;
+      document.getElementById('heroCard').onclick = () => openArticleModal(hero.id);
+    }
+
+    function readHeroArticle() {
+      const articles = getArticles();
+      const hero = articles.find(a => a.isFeatured) || articles[0];
+      if (hero) openArticleModal(hero.id);
+    }
+
+    function renderTrending(articles) {
+      const trending = articles.filter(a => a.isTrending).slice(0, 3);
+      const container = document.getElementById('trendingList');
+      container.innerHTML = trending.map((item, idx) => `
+        <div onclick="openArticleModal(${item.id})" class="bg-[#1C1C1C] border border-[#2F2F2F] hover:border-[#FF5722] p-4 rounded-xl cursor-pointer transition flex items-start space-x-3">
+          <span class="text-2xl font-black text-[#FF5722] opacity-80 font-cinzel">0${idx + 1}</span>
+          <div>
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">${item.categoryName || item.category}</span>
+            <h4 class="text-xs font-bold text-white hover:text-[#FF5722] transition line-clamp-2 mt-1 leading-snug">
+              ${item.title}
+            </h4>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderVideos() {
+      const container = document.getElementById('videoList');
+      container.innerHTML = DEFAULT_VIDEOS.map(video => `
+        <div class="bg-[#222222] border border-[#333333] rounded-xl overflow-hidden group cursor-pointer hover:border-[#FF5722] transition">
+          <div class="relative h-40 overflow-hidden bg-black">
+            <img src="${video.thumbnail}" alt="" class="w-full h-full object-cover group-hover:scale-105 transition duration-300 opacity-90">
+            <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+              <div class="w-10 h-10 rounded-full bg-[#FF5722] text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition">
+                <i class="fa-solid fa-play text-xs ml-0.5"></i>
+              </div>
+            </div>
+            <span class="absolute bottom-2 right-2 bg-black/80 text-white text-[10px] font-bold px-2 py-0.5 rounded">
+              ${video.duration}
+            </span>
+          </div>
+          <div class="p-3">
+            <h5 class="text-xs font-bold text-white line-clamp-2 group-hover:text-[#FF5722] transition">${video.title}</h5>
+            <div class="text-[10px] text-gray-400 mt-2 flex items-center justify-between">
+              <span>CJPTV Video Desk</span>
+              <span>${video.views} views</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderArticlesGrid(articles) {
+      const container = document.getElementById('articlesGrid');
+      let list = articles;
+
+      if (currentCategoryFilter) {
+        list = articles.filter(a => a.category.toLowerCase() === currentCategoryFilter.toLowerCase());
+      }
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-12 text-center text-gray-400">
+            <i class="fa-solid fa-newspaper text-3xl mb-3 text-gray-600"></i>
+            <p class="text-sm">No articles found in this category yet.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = list.map(item => `
+        <article onclick="openArticleModal(${item.id})" class="bg-[#1C1C1C] border border-[#2E2E2E] hover:border-[#FF5722] rounded-xl overflow-hidden transition cursor-pointer flex flex-col justify-between group">
+          <div>
+            <div class="h-44 overflow-hidden relative bg-[#111]">
+              <img src="${item.image}" alt="" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              <span class="absolute top-3 left-3 bg-black/70 text-[#FF8A65] text-[10px] font-bold uppercase px-2.5 py-1 rounded backdrop-blur-sm">
+                ${item.categoryName || item.category}
+              </span>
+            </div>
+            <div class="p-4">
+              <h4 class="text-sm font-bold text-white group-hover:text-[#FF5722] transition font-serif line-clamp-2 leading-snug mb-2">
+                ${item.title}
+              </h4>
+              <p class="text-xs text-gray-400 line-clamp-2 leading-relaxed">
+                ${item.summary}
+              </p>
+            </div>
+          </div>
+          <div class="px-4 py-3 border-t border-[#262626] flex items-center justify-between text-[11px] text-gray-500">
+            <span>By ${item.author}</span>
+            <span>${item.date || 'Today'}</span>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    // Category Filtering
+    function filterCategory(category) {
+      currentCategoryFilter = category;
+      const heroSec = document.getElementById('heroSection');
+      const trendSec = document.getElementById('trendingSection');
+      const videoSec = document.getElementById('videoSection');
+      const catHeader = document.getElementById('categoryHeader');
+      const catTitle = document.getElementById('categoryTitle');
+      const feedHeading = document.getElementById('feedHeading');
+
+      // Update Tab Styles
+      document.querySelectorAll('.category-tab').forEach(tab => {
+        const cat = tab.getAttribute('data-category');
+        if ((!category && cat === 'all') || (cat === category)) {
+          tab.classList.add('text-[#FF5722]', 'border-b-2', 'border-[#FF5722]');
+          tab.classList.remove('text-gray-400');
+        } else {
+          tab.classList.remove('text-[#FF5722]', 'border-b-2', 'border-[#FF5722]');
+          tab.classList.add('text-gray-400');
+        }
+      });
+
+      if (category) {
+        heroSec.classList.add('hidden');
+        trendSec.classList.add('hidden');
+        videoSec.classList.add('hidden');
+        catHeader.classList.remove('hidden');
+        catTitle.innerText = category + ' News';
+        feedHeading.innerText = 'Articles in ' + category.toUpperCase();
+      } else {
+        heroSec.classList.remove('hidden');
+        trendSec.classList.remove('hidden');
+        videoSec.classList.remove('hidden');
+        catHeader.classList.add('hidden');
+        feedHeading.innerText = 'Latest Stories & Special Reports';
+      }
+
+      renderArticlesGrid(getArticles());
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function filterLiveUpdates() {
+      alert("Live ticker is active. Coverage is streaming real-time alerts on the top breaking bar!");
+    }
+
+    // Drawer Menu
+    function toggleMenu() {
+      const drawer = document.getElementById('menuDrawer');
+      drawer.classList.toggle('hidden');
+    }
+
+    // Article Modal
+    function openArticleModal(id) {
+      const article = getArticles().find(a => a.id === id);
+      if (!article) return;
+
+      document.getElementById('modalCategory').innerText = article.categoryName || article.category;
+      document.getElementById('modalTitle').innerText = article.title;
+      document.getElementById('modalAuthor').innerText = article.author || 'Sambhav Gupta';
+      document.getElementById('modalDate').innerText = article.date || 'Today';
+      document.getElementById('modalImage').src = article.image;
+      document.getElementById('modalContent').innerHTML = (article.content || article.summary)
+        .split('\n\n')
+        .map(p => `<p>${p}</p>`)
+        .join('');
+
+      document.getElementById('articleModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeArticleModal() {
+      document.getElementById('articleModal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    function shareArticleModal() {
+      if (navigator.share) {
+        navigator.share({
+          title: document.getElementById('modalTitle').innerText,
+          url: window.location.href
+        }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert("Article link copied to clipboard!");
+      }
+    }
+
+    // Search
+    function openSearchModal() {
+      document.getElementById('searchModal').classList.remove('hidden');
+      document.getElementById('searchInput').focus();
+    }
+
+    function closeSearchModal() {
+      document.getElementById('searchModal').classList.add('hidden');
+    }
+
+    function handleSearch() {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      const resultsContainer = document.getElementById('searchResults');
+
+      if (!query) {
+        resultsContainer.innerHTML = '<p class="text-xs text-gray-500 text-center py-6">Type to search articles across CJPTV.in</p>';
+        return;
+      }
+
+      const articles = getArticles();
+      const matched = articles.filter(a =>
+        a.title.toLowerCase().includes(query) ||
+        (a.summary && a.summary.toLowerCase().includes(query)) ||
+        (a.category && a.category.toLowerCase().includes(query))
+      );
+
+      if (matched.length === 0) {
+        resultsContainer.innerHTML = '<p class="text-xs text-gray-500 text-center py-6">No matching stories found.</p>';
+        return;
+      }
+
+      resultsContainer.innerHTML = matched.map(m => `
+        <div onclick="closeSearchModal(); openArticleModal(${m.id});" class="p-3 bg-[#242424] hover:bg-[#2F2F2F] rounded-lg cursor-pointer transition flex items-center justify-between">
+          <div>
+            <span class="text-[9px] font-bold text-[#FF8A65] uppercase">${m.category}</span>
+            <div class="text-xs font-bold text-white">${m.title}</div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-gray-500 text-xs"></i>
+        </div>
+      `).join('');
+    }
+
+    // Staff Desk & PIN Authorization (061289)
+    function openStaffModal() {
+      document.getElementById('staffModal').classList.remove('hidden');
+      document.getElementById('staffAuthSection').classList.remove('hidden');
+      document.getElementById('staffPublishSection').classList.add('hidden');
+      document.getElementById('staffPinInput').value = '';
+      document.getElementById('pinError').classList.add('hidden');
+      setTimeout(() => document.getElementById('staffPinInput').focus(), 100);
+    }
+
+    function closeStaffModal() {
+      document.getElementById('staffModal').classList.add('hidden');
+    }
+
+    function verifyStaffPin() {
+      const pin = document.getElementById('staffPinInput').value.trim();
+      if (pin === "061289") {
+        document.getElementById('staffAuthSection').classList.add('hidden');
+        document.getElementById('staffPublishSection').classList.remove('hidden');
+        document.getElementById('pinError').classList.add('hidden');
+      } else {
+        document.getElementById('pinError').classList.remove('hidden');
+      }
+    }
+
+    // Article Publishing
+    function handlePublishArticle(e) {
+      e.preventDefault();
+      const title = document.getElementById('articleTitleInput').value.trim();
+      const category = document.getElementById('articleCategoryInput').value;
+      const author = document.getElementById('articleAuthorInput').value.trim();
+      const image = document.getElementById('articleImageInput').value.trim() || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80';
+      const summary = document.getElementById('articleSummaryInput').value.trim();
+      const body = document.getElementById('articleBodyInput').value.trim();
+      const isBreaking = document.getElementById('isBreakingInput').checked;
+      const isFeatured = document.getElementById('isFeaturedInput').checked;
+
+      const articles = getArticles();
+      const newArticle = {
+        id: Date.now(),
+        title: title,
+        category: category,
+        categoryName: category.charAt(0).toUpperCase() + category.slice(1),
+        author: author,
+        date: "Just now",
+        image: image,
+        summary: summary,
+        content: body,
+        isFeatured: isFeatured,
+        isTrending: isBreaking
+      };
+
+      if (isFeatured) {
+        articles.forEach(a => a.isFeatured = false);
+      }
+
+      articles.unshift(newArticle);
+      saveArticles(articles);
+
+      alert("Article published successfully to CJPTV.in!");
+      closeStaffModal();
+      document.getElementById('publishForm').reset();
+      renderAll();
+    }
+
+    function resetDemoData() {
+      if (confirm("Reset to default sample articles?")) {
+        localStorage.removeItem('cjptv_articles');
+        renderAll();
+        closeStaffModal();
+      }
+    }
+
+    // Modals
+    function openAboutModal() {
+      document.getElementById('aboutModal').classList.remove('hidden');
+    }
+
+    function closeAboutModal() {
+      document.getElementById('aboutModal').classList.add('hidden');
+    }
+
+    function openPolicyModal(type) {
+      alert(`CJPTV.in ${type.toUpperCase()} POLICY:\n\nCJPTV.in follows strict journalistic ethics, verification of source material, and prompt rectification of factual discrepancies.`);
+    }
+  </script>
+</body>
+</html>
