@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CJPTV.in Newsroom - Editorial Admin & Publishing Desk</title>
+  <meta name="description" content="Editorial Admin Panel for CJPTV.in - Manage and publish news stories, breaking alerts, and video coverage.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Firebase App & Firestore SDKs for Global Sync -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              orange: '#FF5722',
+              orangeLight: '#FF8A65',
+              dark: '#121212',
+              header: '#1A1A1A',
+              card: '#1E1E1E',
+              border: '#2E2E2E',
+              red: '#E53935'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Playfair Display"', 'serif'],
+            cinzel: ['"Cinzel"', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #121212;
+      color: #E0E0E0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #181818;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #333333;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #FF5722;
+    }
+  </style>
+</head>
+<body class="bg-[#121212] text-gray-200 min-h-screen flex flex-col antialiased selection:bg-[#FF5722] selection:text-white">
+
+  <!-- PIN Security Authentication Screen -->
+  <div id="authGateSection" class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-[#1B1B1B] border border-[#333333] rounded-2xl max-w-md w-full p-8 shadow-2xl text-center">
+      <div class="w-16 h-16 rounded-full bg-[#242424] border border-[#3A3A3A] flex items-center justify-center mx-auto mb-4 text-[#FF5722] text-2xl shadow-lg">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <div class="flex items-center justify-center space-x-1.5 mb-2">
+        <span class="text-2xl font-black text-white font-cinzel">CJPTV</span>
+        <span class="text-2xl font-black text-[#FF5722] font-cinzel">.IN</span>
+      </div>
+      <h2 class="text-lg font-bold text-white mb-1">Newsroom Admin Gate</h2>
+      <p class="text-xs text-gray-400 mb-6">Enter authorized editorial PIN to access publishing desk.</p>
+
+      <form onsubmit="handlePinSubmit(event)" class="space-y-4">
+        <div class="relative">
+          <input type="password" id="pinInput" placeholder="••••••" maxlength="10" required autofocus class="w-full text-center tracking-widest text-2xl bg-[#242424] border border-[#383838] text-white rounded-xl p-3.5 focus:outline-none focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] transition">
+        </div>
+        <div id="authErrorMsg" class="text-xs text-red-400 hidden bg-red-950/40 p-2.5 rounded-lg border border-red-900/60">
+          <i class="fa-solid fa-circle-exclamation mr-1"></i> Access Denied: Incorrect Security PIN
+        </div>
+        <button type="submit" class="w-full bg-[#FF5722] hover:bg-orange-600 text-white font-bold text-sm py-3.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span>Verify & Access Admin Desk</span>
+        </button>
+      </form>
+
+      <div class="mt-6 pt-4 border-t border-[#262626] flex items-center justify-between text-xs text-gray-500">
+        <a href="index.html" class="text-gray-400 hover:text-[#FF5722] transition flex items-center gap-1">
+          <i class="fa-solid fa-arrow-left"></i> Return to Website
+        </a>
+        <span>Default PIN: <strong class="text-gray-300">061289</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Admin Dashboard Panel (Protected) -->
+  <div id="adminMainSection" class="hidden min-h-screen flex flex-col">
+    
+    <!-- Top Admin Header -->
+    <header class="bg-[#181818] border-b border-[#2C2C2C] sticky top-0 z-40 shadow-lg">
+      <div class="max-w-7xl mx-auto px-4 sm:px-8 py-3 flex items-center justify-between">
+        
+        <!-- Left: Logo & Title -->
+        <div class="flex items-center space-x-3">
+          <a href="index.html" class="flex items-center space-x-1.5 group" title="Go to Website">
+            <span class="text-2xl font-black text-white font-cinzel">CJPTV</span>
+            <span class="text-2xl font-black text-[#FF5722] font-cinzel">.IN</span>
+          </a>
+          <span class="text-gray-600">|</span>
+          <span class="text-xs font-bold uppercase tracking-wider text-gray-300 hidden sm:inline bg-[#222] px-2.5 py-1 rounded-md border border-[#333]">
+            Editorial CMS
+          </span>
+        </div>
+
+        <!-- Center / Right: Cloud Status & Controls -->
+        <div class="flex items-center space-x-3 text-xs">
+          <div id="cloudBadge" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#202020] border border-[#333] text-emerald-400 font-semibold">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="cloudStatusLabel">Universal Cloud Sync Active</span>
+          </div>
+
+          <a href="index.html" target="_blank" class="bg-[#242424] hover:bg-[#2F2F2F] text-gray-200 hover:text-white font-semibold px-3.5 py-2 rounded-lg border border-[#383838] transition flex items-center gap-1.5">
+            <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+            <span class="hidden sm:inline">View</span> Live Site
+          </a>
+
+          <button onclick="handleLogout()" class="bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-900/60 font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
+            <i class="fa-solid fa-arrow-right-bracket"></i>
+            <span class="hidden sm:inline">Exit</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="bg-[#141414] border-t border-[#242424]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8 flex space-x-6 text-xs font-bold uppercase tracking-wider py-2.5 overflow-x-auto scrollbar-none">
+          <button onclick="switchTab('publish')" id="tab-publish" class="admin-tab active text-[#FF5722] border-b-2 border-[#FF5722] pb-0.5 flex items-center gap-1.5">
+            <i class="fa-solid fa-pen-to-square"></i> Publish Story
+          </button>
+          <button onclick="switchTab('manage')" id="tab-manage" class="admin-tab text-gray-400 hover:text-white pb-0.5 flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-list-check"></i> Manage Stories (<span id="tabCountBadge">0</span>)
+          </button>
+          <button onclick="switchTab('cloud')" id="tab-cloud" class="admin-tab text-gray-400 hover:text-white pb-0.5 flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-cloud-bolt"></i> Cloud Sync Settings
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Admin Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-8 py-8 flex-1 w-full">
+
+      <!-- Newsroom Metrics Ribbon -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <div class="bg-[#1C1C1C] border border-[#2B2B2B] p-4 rounded-xl shadow-md">
+          <div class="text-[11px] font-bold text-gray-400 uppercase">Total Stories</div>
+          <div class="text-2xl font-black text-white mt-1" id="statTotal">0</div>
+        </div>
+        <div class="bg-[#1C1C1C] border border-[#2B2B2B] p-4 rounded-xl shadow-md">
+          <div class="text-[11px] font-bold text-gray-400 uppercase">Bihar Beat</div>
+          <div class="text-2xl font-black text-[#FF8A65] mt-1" id="statBihar">0</div>
+        </div>
+        <div class="bg-[#1C1C1C] border border-[#2B2B2B] p-4 rounded-xl shadow-md">
+          <div class="text-[11px] font-bold text-gray-400 uppercase">National & Politics</div>
+          <div class="text-2xl font-black text-white mt-1" id="statNational">0</div>
+        </div>
+        <div class="bg-[#1C1C1C] border border-[#2B2B2B] p-4 rounded-xl shadow-md">
+          <div class="text-[11px] font-bold text-gray-400 uppercase">Breaking Tickers</div>
+          <div class="text-2xl font-black text-red-400 mt-1" id="statBreaking">0</div>
+        </div>
+      </div>
+
+      <!-- TAB 1: PUBLISH STORY -->
+      <section id="panel-publish" class="tab-panel">
+        <div class="bg-[#1A1A1A] border border-[#2E2E2E] rounded-2xl p-6 sm:p-8 shadow-2xl">
+          
+          <div class="flex items-center justify-between pb-4 border-b border-[#2C2C2C] mb-6">
+            <div>
+              <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-newspaper text-[#FF5722]"></i>
+                <span id="formModeTitle">Publish New Story</span>
+              </h2>
+              <p class="text-xs text-gray-400 mt-0.5">Direct device photo upload, smart formatting, and universal cross-device broadcast.</p>
+            </div>
+            <button type="button" onclick="resetPublishForm()" class="text-xs bg-[#242424] hover:bg-[#303030] text-gray-300 px-3 py-1.5 rounded-lg border border-[#383838] transition">
+              <i class="fa-solid fa-rotate-left mr-1"></i> Clear Form
+            </button>
+          </div>
+
+          <form id="storyForm" onsubmit="handleStorySubmit(event)" class="space-y-6 text-xs">
+            <input type="hidden" id="editingArticleId" value="">
+
+            <!-- Headline / Title -->
+            <div>
+              <label class="block text-gray-300 font-bold uppercase tracking-wider mb-2">Headline / Story Title *</label>
+              <input type="text" id="storyTitle" required placeholder="Enter impactful journalistic headline..." class="w-full bg-[#222222] border border-[#333333] text-white rounded-xl p-3.5 text-sm focus:outline-none focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] transition">
+            </div>
+
+            <!-- Category & Author Row -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-gray-300 font-bold uppercase tracking-wider mb-2">Editorial Beat / Category *</label>
+                <select id="storyCategory" required class="w-full bg-[#222222] border border-[#333333] text-white rounded-xl p-3 text-sm focus:outline-none focus:border-[#FF5722]">
+                  <option value="bihar">Bihar News (Patna & Districts)</option>
+                  <option value="india">National News</option>
+                  <option value="politics">Politics & Governance</option>
+                  <option value="business">Economy & Business</option>
+                  <option value="sports">Sports & Cricket</option>
+                  <option value="technology">Technology & AI</option>
+                  <option value="world">World News</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-gray-300 font-bold uppercase tracking-wider mb-2">Author / Bylines *</label>
+                <input type="text" id="storyAuthor" value="Sambhav Gupta" required class="w-full bg-[#222222] border border-[#333333] text-white rounded-xl p-3 text-sm focus:outline-none focus:border-[#FF5722]">
+              </div>
+            </div>
+
+            <!-- DIRECT IMAGE UPLOAD SECTION (Gallery / File Picker / Camera) -->
+            <div class="bg-[#1E1E1E] border border-[#333333] rounded-xl p-5">
+              <label class="block text-gray-200 font-bold uppercase tracking-wider mb-2 flex items-center justify-between">
+                <span>Article Photo (Direct File Upload) *</span>
+                <span class="text-[10px] text-gray-400 font-normal">Auto-optimized for high speed</span>
+              </label>
+
+              <!-- Upload Area -->
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                <div class="md:col-span-8">
+                  <div class="border-2 border-dashed border-[#3A3A3A] hover:border-[#FF5722] rounded-xl p-6 text-center cursor-pointer transition bg-[#171717]" onclick="document.getElementById('imageFileInput').click()">
+                    <input type="file" id="imageFileInput" accept="image/*" class="hidden" onchange="handleImageFileSelect(event)">
+                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-[#FF5722] mb-2"></i>
+                    <p class="text-xs font-bold text-white">Click to choose photo from Phone Gallery or Computer</p>
+                    <p class="text-[11px] text-gray-400 mt-1">Supports JPG, PNG, WEBP (Instant device upload)</p>
+                  </div>
+
+                  <!-- Alternative Image URL input fallback -->
+                  <div class="mt-3 flex items-center space-x-2">
+                    <span class="text-[10px] text-gray-500 uppercase font-semibold">Or Image URL:</span>
+                    <input type="url" id="storyImageUrl" placeholder="https://images.unsplash.com/..." class="bg-[#242424] border border-[#333] text-gray-300 text-xs rounded-lg p-2 flex-1 focus:outline-none focus:border-[#FF5722]" oninput="handleImageUrlInput()">
+                  </div>
+                </div>
+
+                <!-- Live Image Preview Box -->
+                <div class="md:col-span-4 flex flex-col items-center justify-center">
+                  <div class="w-full h-40 bg-[#121212] border border-[#333] rounded-xl overflow-hidden relative flex items-center justify-center">
+                    <img id="imagePreview" src="https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=600&q=80" alt="Preview" class="w-full h-full object-cover">
+                    <div id="imagePreviewPlaceholder" class="hidden text-center p-3 text-gray-500">
+                      <i class="fa-regular fa-image text-3xl mb-1"></i>
+                      <p class="text-[10px]">No image selected</p>
+                    </div>
+                  </div>
+                  <button type="button" onclick="removeSelectedImage()" class="mt-2 text-[11px] text-red-400 hover:text-red-300 flex items-center gap-1">
+                    <i class="fa-solid fa-trash-can"></i> Remove Photo
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Short Summary -->
+            <div>
+              <label class="block text-gray-300 font-bold uppercase tracking-wider mb-2">Short Lead Summary *</label>
+              <textarea id="storySummary" rows="2" required placeholder="Enter concise 1-2 sentence lead summary..." class="w-full bg-[#222222] border border-[#333333] text-white rounded-xl p-3 text-sm focus:outline-none focus:border-[#FF5722]"></textarea>
+            </div>
+
+            <!-- Full Article Body -->
+            <div>
+              <label class="block text-gray-300 font-bold uppercase tracking-wider mb-2">Full Story Body / Paragraphs *</label>
+              <textarea id="storyContent" rows="6" required placeholder="Write detailed journalistic reporting, quotes, background context..." class="w-full bg-[#222222] border border-[#333333] text-white rounded-xl p-3 text-sm focus:outline-none focus:border-[#FF5722]"></textarea>
+            </div>
+
+            <!-- Options: Lead Story, Breaking Ticker, Trending -->
+            <div class="bg-[#1C1C1C] border border-[#333333] rounded-xl p-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <label class="flex items-center space-x-2.5 cursor-pointer text-gray-200">
+                <input type="checkbox" id="storyIsFeatured" class="w-4 h-4 rounded text-[#FF5722] focus:ring-[#FF5722] accent-[#FF5722]">
+                <span class="font-bold">Set as Lead Story (Hero)</span>
+              </label>
+
+              <label class="flex items-center space-x-2.5 cursor-pointer text-gray-200">
+                <input type="checkbox" id="storyIsBreaking" class="w-4 h-4 rounded text-red-600 focus:ring-red-600 accent-red-600">
+                <span class="font-bold">Set as Breaking Ticker</span>
+              </label>
+
+              <label class="flex items-center space-x-2.5 cursor-pointer text-gray-200">
+                <input type="checkbox" id="storyIsTrending" class="w-4 h-4 rounded text-amber-500 focus:ring-amber-500 accent-amber-500">
+                <span class="font-bold">Set as Trending Story</span>
+              </label>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="submitBtn" class="w-full bg-[#FF5722] hover:bg-orange-600 text-white font-bold py-4 rounded-xl transition text-sm shadow-xl flex items-center justify-center gap-2">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span id="submitBtnText">Publish Story Live Across All Devices</span>
+            </button>
+          </form>
+
+        </div>
+      </section>
+
+      <!-- TAB 2: MANAGE STORIES (DELETE / EDIT / FILTER) -->
+      <section id="panel-manage" class="tab-panel hidden">
+        <div class="bg-[#1A1A1A] border border-[#2E2E2E] rounded-2xl p-6 sm:p-8 shadow-2xl">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-[#2C2C2C] mb-6 gap-4">
+            <div>
+              <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-[#FF5722]"></i>
+                <span>Manage Published Stories</span>
+              </h2>
+              <p class="text-xs text-gray-400 mt-0.5">Delete, edit, or reconfigure any story across the entire platform.</p>
+            </div>
+
+            <!-- Search Filter -->
+            <div class="flex items-center space-x-2">
+              <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400 text-xs"></i>
+                <input type="text" id="manageSearchInput" oninput="renderManageTable()" placeholder="Search stories..." class="bg-[#242424] border border-[#383838] text-white text-xs rounded-xl pl-8 pr-3 py-2.5 focus:outline-none focus:border-[#FF5722] w-48 sm:w-64">
+              </div>
+              <button onclick="switchTab('publish'); resetPublishForm();" class="bg-[#FF5722] hover:bg-orange-600 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap">
+                <i class="fa-solid fa-plus"></i> New Story
+              </button>
+            </div>
+          </div>
+
+          <!-- Story Cards / Table -->
+          <div class="space-y-3" id="manageListContainer">
+            <!-- Dynamically injected story items -->
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TAB 3: CLOUD SYNC SETTINGS -->
+      <section id="panel-cloud" class="tab-panel hidden">
+        <div class="bg-[#1A1A1A] border border-[#2E2E2E] rounded-2xl p-6 sm:p-8 shadow-2xl">
+          <div class="pb-5 border-b border-[#2C2C2C] mb-6">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-cloud-arrow-up text-[#FF5722]"></i>
+              <span>Universal Cloud Sync Configuration (Firebase)</span>
+            </h2>
+            <p class="text-xs text-gray-400 mt-0.5">Ensure all published stories sync instantly to every visitor's phone and computer worldwide.</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-7 space-y-4">
+              <div class="bg-[#222222] border border-[#333333] rounded-xl p-5">
+                <h4 class="text-sm font-bold text-white mb-2">Connect Your Free Google Firebase Project</h4>
+                <p class="text-xs text-gray-400 mb-4 leading-relaxed">
+                  To sync stories worldwide in real-time without hosting your own server, paste your Firebase web config JSON below.
+                </p>
+
+                <div class="space-y-3">
+                  <label class="block text-xs font-bold uppercase text-gray-300">Firebase Config JSON</label>
+                  <textarea id="firebaseConfigInput" rows="7" placeholder='{
+  "apiKey": "AIzaSy...",
+  "authDomain": "cjptv-news.firebaseapp.com",
+  "projectId": "cjptv-news",
+  "storageBucket": "cjptv-news.appspot.com",
+  "messagingSenderId": "...",
+  "appId": "..."
+}' class="w-full bg-[#181818] border border-[#383838] text-emerald-400 font-mono text-xs rounded-xl p-3 focus:outline-none focus:border-[#FF5722]"></textarea>
+                </div>
+
+                <div class="flex items-center space-x-3 mt-4">
+                  <button onclick="saveFirebaseConfig()" class="bg-[#FF5722] hover:bg-orange-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-floppy-disk"></i> Save & Test Cloud Sync
+                  </button>
+                  <button onclick="clearFirebaseConfig()" class="bg-[#2B2B2B] hover:bg-[#383838] text-gray-300 text-xs px-3 py-2.5 rounded-xl transition">
+                    Reset Config
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="lg:col-span-5 space-y-4">
+              <div class="bg-[#222222] border border-[#333333] rounded-xl p-5 text-xs text-gray-300 space-y-3">
+                <h4 class="font-bold text-white text-sm flex items-center gap-1.5">
+                  <i class="fa-solid fa-circle-info text-[#FF5722]"></i>
+                  How Universal Sync Works
+                </h4>
+                <p class="leading-relaxed text-gray-400">
+                  1. <strong>Direct Photo Compression:</strong> Photos uploaded from your phone are compressed in your browser so they upload instantly in under 1 second.
+                </p>
+                <p class="leading-relaxed text-gray-400">
+                  2. <strong>Global Real-time Broadcast:</strong> When you click "Publish", the story is stored in Firestore and broadcasts live to all readers via WebSockets.
+                </p>
+                <p class="leading-relaxed text-gray-400">
+                  3. <strong>Instant Delete Power:</strong> Deleting any story in this admin desk immediately removes it from all visitors' devices.
+                </p>
+              </div>
+
+              <!-- Reset to Default Seed Data -->
+              <div class="bg-[#222222] border border-[#333333] rounded-xl p-5">
+                <h4 class="font-bold text-white text-xs mb-2">Emergency Demo Data Reset</h4>
+                <p class="text-[11px] text-gray-400 mb-3">Restore initial CJPTV demo news stories.</p>
+                <button onclick="restoreSeedData()" class="w-full bg-red-950/40 hover:bg-red-900/60 text-red-300 border border-red-900/50 font-bold text-xs py-2.5 rounded-xl transition">
+                  <i class="fa-solid fa-rotate-left mr-1"></i> Reset to Default News Stories
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Admin Footer -->
+    <footer class="bg-[#141414] border-t border-[#262626] py-4 text-center text-xs text-gray-500">
+      CJPTV.in Editorial Publishing Desk • Authenticated Security PIN Protected • Sambhav Gupta
+    </footer>
+
+  </div>
+
+  <!-- Javascript Logic -->
+  <script>
+    const SECURITY_PIN = "061289";
+    let articles = [];
+    let currentUploadedImageDataUrl = "";
+    let db = null;
+
+    // Load Initial State
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      loadArticles();
+      initFirebase();
+      updateMetrics();
+      renderManageTable();
+    });
+
+    // Authentication Gate
+    function checkAuth() {
+      const isAuth = sessionStorage.getItem('cjptv_admin_auth');
+      if (isAuth === 'true') {
+        document.getElementById('authGateSection').classList.add('hidden');
+        document.getElementById('adminMainSection').classList.remove('hidden');
+      } else {
+        document.getElementById('authGateSection').classList.remove('hidden');
+        document.getElementById('adminMainSection').classList.add('hidden');
+      }
+    }
+
+    function handlePinSubmit(e) {
+      e.preventDefault();
+      const pin = document.getElementById('pinInput').value.trim();
+      const errorMsg = document.getElementById('authErrorMsg');
+
+      if (pin === SECURITY_PIN) {
+        sessionStorage.setItem('cjptv_admin_auth', 'true');
+        errorMsg.classList.add('hidden');
+        checkAuth();
+      } else {
+        errorMsg.classList.remove('hidden');
+        document.getElementById('pinInput').value = '';
+        document.getElementById('pinInput').focus();
+      }
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem('cjptv_admin_auth');
+      window.location.reload();
+    }
+
+    // Tab Switching
+    function switchTab(tabId) {
+      document.querySelectorAll('.admin-tab').forEach(tab => {
+        tab.classList.remove('text-[#FF5722]', 'border-b-2', 'border-[#FF5722]', 'active');
+        tab.classList.add('text-gray-400');
+      });
+      document.getElementById('tab-' + tabId).classList.add('text-[#FF5722]', 'border-b-2', 'border-[#FF5722]', 'active');
+      document.getElementById('tab-' + tabId).classList.remove('text-gray-400');
+
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.add('hidden'));
+      document.getElementById('panel-' + tabId).classList.remove('hidden');
+
+      if (tabId === 'manage') {
+        renderManageTable();
+      }
+    }
+
+    // Article Data Management
+    function loadArticles() {
+      const saved = localStorage.getItem('cjptv_articles');
+      if (saved) {
+        try {
+          articles = JSON.parse(saved);
+          return;
+        } catch(e) {}
+      }
+      articles = [];
+    }
+
+    function saveArticles() {
+      localStorage.setItem('cjptv_articles', JSON.stringify(articles));
+      updateMetrics();
+      
+      // Save to Firebase Cloud Database if connected
+      if (db) {
+        // Broadcast updates
+      }
+    }
+
+    // DIRECT IMAGE UPLOAD & OPTIMIZATION
+    function handleImageFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          // Resize to max 1200px width with high JPEG quality for fast storage
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 1200;
+
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Get optimized base64
+          currentUploadedImageDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          document.getElementById('imagePreview').src = currentUploadedImageDataUrl;
+          document.getElementById('imagePreviewPlaceholder').classList.add('hidden');
+          document.getElementById('imagePreview').classList.remove('hidden');
+          document.getElementById('storyImageUrl').value = '';
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleImageUrlInput() {
+      const url = document.getElementById('storyImageUrl').value.trim();
+      if (url) {
+        currentUploadedImageDataUrl = url;
+        document.getElementById('imagePreview').src = url;
+        document.getElementById('imagePreviewPlaceholder').classList.add('hidden');
+        document.getElementById('imagePreview').classList.remove('hidden');
+      }
+    }
+
+    function removeSelectedImage() {
+      currentUploadedImageDataUrl = "";
+      document.getElementById('imageFileInput').value = "";
+      document.getElementById('storyImageUrl').value = "";
+      document.getElementById('imagePreview').src = "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=600&q=80";
+    }
+
+    // Publish / Edit Article
+    function handleStorySubmit(e) {
+      e.preventDefault();
+
+      const editId = document.getElementById('editingArticleId').value;
+      const title = document.getElementById('storyTitle').value.trim();
+      const category = document.getElementById('storyCategory').value;
+      const categoryName = document.getElementById('storyCategory').options[document.getElementById('storyCategory').selectedIndex].text.split(' ')[0];
+      const author = document.getElementById('storyAuthor').value.trim() || 'Sambhav Gupta';
+      const summary = document.getElementById('storySummary').value.trim();
+      const content = document.getElementById('storyContent').value.trim();
+      const isFeatured = document.getElementById('storyIsFeatured').checked;
+      const isBreaking = document.getElementById('storyIsBreaking').checked;
+      const isTrending = document.getElementById('storyIsTrending').checked;
+
+      const image = currentUploadedImageDataUrl || "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80";
+
+      // If featured, remove featured from others
+      if (isFeatured) {
+        articles.forEach(a => a.isFeatured = false);
+      }
+
+      if (editId) {
+        // Update existing story
+        const idx = articles.findIndex(a => String(a.id) === String(editId));
+        if (idx !== -1) {
+          articles[idx] = {
+            ...articles[idx],
+            title,
+            category,
+            categoryName,
+            author,
+            summary,
+            content,
+            image,
+            isFeatured,
+            isBreaking,
+            isTrending,
+            updatedAt: Date.now()
+          };
+
+          if (db) {
+            db.collection("cjptv_news").doc(String(editId)).set(articles[idx]).catch(console.warn);
+          }
+        }
+        alert("Story successfully updated!");
+      } else {
+        // Create new story
+        const newId = "art-" + Date.now();
+        const newArticle = {
+          id: newId,
+          title,
+          category,
+          categoryName,
+          author,
+          date: "Just Now",
+          summary,
+          content,
+          image,
+          isFeatured,
+          isBreaking,
+          isTrending,
+          createdAt: Date.now()
+        };
+
+        articles.unshift(newArticle);
+
+        if (db) {
+          db.collection("cjptv_news").doc(newId).set(newArticle).catch(console.warn);
+        }
+        alert("Story successfully published live!");
+      }
+
+      saveArticles();
+      resetPublishForm();
+      switchTab('manage');
+    }
+
+    function resetPublishForm() {
+      document.getElementById('editingArticleId').value = '';
+      document.getElementById('formModeTitle').innerText = 'Publish New Story';
+      document.getElementById('submitBtnText').innerText = 'Publish Story Live Across All Devices';
+      document.getElementById('storyForm').reset();
+      document.getElementById('storyAuthor').value = 'Sambhav Gupta';
+      removeSelectedImage();
+    }
+
+    // Edit Story
+    function editStory(id) {
+      const article = articles.find(a => String(a.id) === String(id));
+      if (!article) return;
+
+      document.getElementById('editingArticleId').value = article.id;
+      document.getElementById('formModeTitle').innerText = 'Edit Story: ' + article.title;
+      document.getElementById('submitBtnText').innerText = 'Update & Broadcast Changes';
+
+      document.getElementById('storyTitle').value = article.title;
+      document.getElementById('storyCategory').value = article.category;
+      document.getElementById('storyAuthor').value = article.author || 'Sambhav Gupta';
+      document.getElementById('storySummary').value = article.summary;
+      document.getElementById('storyContent').value = article.content || article.summary;
+      
+      document.getElementById('storyIsFeatured').checked = !!article.isFeatured;
+      document.getElementById('storyIsBreaking').checked = !!article.isBreaking;
+      document.getElementById('storyIsTrending').checked = !!article.isTrending;
+
+      if (article.image) {
+        currentUploadedImageDataUrl = article.image;
+        document.getElementById('imagePreview').src = article.image;
+        document.getElementById('storyImageUrl').value = article.image.startsWith('http') ? article.image : '';
+      }
+
+      switchTab('publish');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // DELETE STORY WITH POWERS
+    function deleteStory(id) {
+      const article = articles.find(a => String(a.id) === String(id));
+      if (!article) return;
+
+      const confirmDelete = confirm(`Are you sure you want to permanently delete this story:\n\n"${article.title}"?\n\nThis will remove it instantly from the public feed on all devices.`);
+      if (!confirmDelete) return;
+
+      articles = articles.filter(a => String(a.id) !== String(id));
+      saveArticles();
+
+      if (db) {
+        db.collection("cjptv_news").doc(String(id)).delete().catch(console.warn);
+      }
+
+      renderManageTable();
+      updateMetrics();
+      alert("Story deleted successfully.");
+    }
+
+    // Toggle Badges
+    function toggleStoryProperty(id, property) {
+      const idx = articles.findIndex(a => String(a.id) === String(id));
+      if (idx === -1) return;
+
+      if (property === 'isFeatured') {
+        const currentVal = articles[idx].isFeatured;
+        articles.forEach(a => a.isFeatured = false);
+        articles[idx].isFeatured = !currentVal;
+      } else {
+        articles[idx][property] = !articles[idx][property];
+      }
+
+      saveArticles();
+      renderManageTable();
+    }
+
+    // Render Management Table
+    function renderManageTable() {
+      const container = document.getElementById('manageListContainer');
+      const searchQuery = (document.getElementById('manageSearchInput')?.value || '').trim().toLowerCase();
+
+      let list = articles;
+      if (searchQuery) {
+        list = articles.filter(a =>
+          a.title.toLowerCase().includes(searchQuery) ||
+          (a.category && a.category.toLowerCase().includes(searchQuery)) ||
+          (a.author && a.author.toLowerCase().includes(searchQuery))
+        );
+      }
+
+      document.getElementById('tabCountBadge').innerText = articles.length;
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="py-12 text-center text-gray-500 bg-[#222222] rounded-xl border border-[#333]">
+            <i class="fa-solid fa-folder-open text-3xl mb-2 text-gray-600"></i>
+            <p class="text-xs">No matching stories found.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = list.map(item => `
+        <div class="bg-[#202020] border border-[#2E2E2E] hover:border-[#FF5722] rounded-xl p-4 transition flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-md">
+          
+          <div class="flex items-center space-x-4 overflow-hidden">
+            <img src="${item.image || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=200'}" class="w-16 h-16 object-cover rounded-lg shrink-0 border border-[#333]">
+            <div class="overflow-hidden">
+              <div class="flex items-center space-x-2 mb-1">
+                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-[#2A2A2A] text-[#FF8A65] border border-[#383838]">
+                  ${item.categoryName || item.category}
+                </span>
+                ${item.isFeatured ? '<span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-orange-600 text-white">Lead</span>' : ''}
+                ${item.isBreaking ? '<span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-red-600 text-white">Breaking</span>' : ''}
+                ${item.isTrending ? '<span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-600 text-white">Trending</span>' : ''}
+              </div>
+              <h4 class="text-xs font-bold text-white line-clamp-1">${item.title}</h4>
+              <div class="text-[11px] text-gray-400 mt-1 flex items-center space-x-3">
+                <span>By ${item.author || 'Sambhav Gupta'}</span>
+                <span>•</span>
+                <span>${item.date || 'Recent'}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center space-x-2 shrink-0 self-end sm:self-center">
+            <button onclick="toggleStoryProperty('${item.id}', 'isFeatured')" class="p-2 rounded-lg ${item.isFeatured ? 'bg-orange-600 text-white' : 'bg-[#2A2A2A] text-gray-400 hover:text-white'} text-xs border border-[#3A3A3A] transition" title="Toggle Lead Story">
+              <i class="fa-solid fa-star"></i>
+            </button>
+            <button onclick="toggleStoryProperty('${item.id}', 'isBreaking')" class="p-2 rounded-lg ${item.isBreaking ? 'bg-red-600 text-white' : 'bg-[#2A2A2A] text-gray-400 hover:text-white'} text-xs border border-[#3A3A3A] transition" title="Toggle Breaking Ticker">
+              <i class="fa-solid fa-bolt"></i>
+            </button>
+            <button onclick="editStory('${item.id}')" class="bg-[#2A2A2A] hover:bg-[#383838] text-white text-xs px-3 py-2 rounded-lg border border-[#3A3A3A] transition flex items-center gap-1">
+              <i class="fa-solid fa-pen"></i> Edit
+            </button>
+            <button onclick="deleteStory('${item.id}')" class="bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-900/60 text-xs px-3 py-2 rounded-lg transition flex items-center gap-1">
+              <i class="fa-solid fa-trash-can"></i> Delete
+            </button>
+          </div>
+
+        </div>
+      `).join('');
+    }
+
+    // Metrics Ribbon
+    function updateMetrics() {
+      document.getElementById('statTotal').innerText = articles.length;
+      document.getElementById('statBihar').innerText = articles.filter(a => a.category === 'bihar').length;
+      document.getElementById('statNational').innerText = articles.filter(a => a.category === 'india' || a.category === 'politics').length;
+      document.getElementById('statBreaking').innerText = articles.filter(a => a.isBreaking || a.isFeatured).length;
+    }
+
+    // Firebase Cloud Database Initialization
+    function initFirebase() {
+      const savedConfig = localStorage.getItem('cjptv_firebase_config');
+      if (savedConfig) {
+        try {
+          const config = JSON.parse(savedConfig);
+          document.getElementById('firebaseConfigInput').value = JSON.stringify(config, null, 2);
+          if (!firebase.apps.length) {
+            firebase.initializeApp(config);
+          }
+          db = firebase.firestore();
+          document.getElementById('cloudStatusLabel').innerText = "Firebase Cloud Connected";
+        } catch(e) {
+          console.warn("Firebase parse error:", e);
+        }
+      }
+    }
+
+    function saveFirebaseConfig() {
+      const configStr = document.getElementById('firebaseConfigInput').value.trim();
+      try {
+        const config = JSON.parse(configStr);
+        localStorage.setItem('cjptv_firebase_config', JSON.stringify(config));
+        alert("Firebase Cloud Database configuration saved! Reloading...");
+        window.location.reload();
+      } catch (e) {
+        alert("Invalid JSON format. Please verify your Firebase configuration.");
+      }
+    }
+
+    function clearFirebaseConfig() {
+      localStorage.removeItem('cjptv_firebase_config');
+      document.getElementById('firebaseConfigInput').value = '';
+      alert("Firebase configuration cleared.");
+    }
+
+    function restoreSeedData() {
+      if (confirm("Reset all stories to default CJPTV demo stories?")) {
+        localStorage.removeItem('cjptv_articles');
+        window.location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

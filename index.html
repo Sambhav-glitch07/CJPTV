@@ -9,6 +9,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Firebase App & Firestore SDKs for Global Cross-Device Sync -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -21,8 +26,8 @@
               orangeLight: '#FF8A65',
               dark: '#121212',
               header: '#1A1A1A',
-              card: '#222222',
-              border: '#333333',
+              card: '#1E1E1E',
+              border: '#2E2E2E',
               red: '#E53935'
             }
           },
@@ -44,7 +49,7 @@
     .ticker-scroll {
       display: inline-block;
       white-space: nowrap;
-      animation: ticker 30s linear infinite;
+      animation: ticker 35s linear infinite;
     }
     .ticker-scroll:hover {
       animation-play-state: paused;
@@ -65,66 +70,87 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #181818;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #333333;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #FF5722;
+    }
   </style>
 </head>
 <body class="bg-[#121212] text-gray-200 min-h-screen flex flex-col antialiased selection:bg-[#FF5722] selection:text-white">
 
   <!-- Top Utility Bar -->
-  <div class="bg-[#181818] border-b border-[#2A2A2A] text-xs py-1.5 px-4 sm:px-8 flex justify-between items-center text-gray-400">
+  <div class="bg-[#181818] border-b border-[#282828] text-xs py-1.5 px-4 sm:px-8 flex justify-between items-center text-gray-400">
     <div class="flex items-center space-x-3">
       <span class="font-bold text-[#FF5722] flex items-center gap-1.5">
         <i class="fa-solid fa-globe text-xs"></i> cjptv.in
       </span>
       <span class="hidden sm:inline text-gray-600">|</span>
       <span id="currentDate" class="hidden sm:inline text-gray-400"></span>
+      <span class="hidden md:inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded bg-[#242424] text-emerald-400 border border-[#333]">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span id="cloudStatusText">Live Cloud Sync</span>
+      </span>
     </div>
     <div class="flex items-center space-x-4 text-[11px]">
       <span class="font-semibold text-gray-300">EDITION: PATNA / NATIONAL</span>
       <span class="text-amber-400 flex items-center gap-1">
         <i class="fa-solid fa-sun"></i> 32°C Patna
       </span>
+      <a href="admin.html" class="hidden sm:inline-flex items-center gap-1 text-[#FF8A65] hover:text-white font-semibold transition">
+        <i class="fa-solid fa-lock text-[10px]"></i> Admin Desk
+      </a>
     </div>
   </div>
 
   <!-- Main Website Masthead -->
-  <header class="bg-[#1A1A1A] border-b border-[#333333] sticky top-0 z-40 shadow-lg">
-    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-3 flex items-center justify-between">
+  <header class="bg-[#1A1A1A] border-b border-[#303030] sticky top-0 z-40 shadow-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-3.5 flex items-center justify-between">
       
-      <!-- Left: Hamburger Menu -->
+      <!-- Left: Hamburger Menu & Admin Shortcut -->
       <div class="flex items-center space-x-3">
-        <button onclick="toggleMenu()" class="w-10 h-10 rounded-full bg-[#242424] border border-[#333333] flex items-center justify-center text-gray-300 hover:text-white hover:border-[#FF5722] transition">
-          <i class="fa-solid fa-bars text-lg"></i>
+        <button onclick="toggleMenu()" class="w-10 h-10 rounded-full bg-[#242424] border border-[#333333] flex items-center justify-center text-gray-300 hover:text-white hover:border-[#FF5722] transition" title="Open Navigation Menu">
+          <i class="fa-solid fa-bars text-base"></i>
         </button>
-        <button onclick="filterCategory(null)" class="hidden md:flex text-xs font-semibold text-gray-400 hover:text-[#FF5722] items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#242424] border border-[#333333]">
+        <button onclick="filterCategory(null)" class="hidden md:flex text-xs font-semibold text-gray-300 hover:text-[#FF5722] items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#242424] border border-[#333333] transition">
           <i class="fa-solid fa-house"></i> Home
         </button>
       </div>
 
-      <!-- Center: Logo -->
+      <!-- Center: Brand Logo -->
       <div onclick="filterCategory(null)" class="cursor-pointer text-center group">
         <div class="flex items-center justify-center leading-none">
-          <span class="text-3xl sm:text-4xl font-black tracking-tight text-white font-cinzel">CJPTV</span>
-          <span class="text-3xl sm:text-4xl font-black text-[#FF5722] font-cinzel">.IN</span>
+          <span class="text-3xl sm:text-4xl font-black tracking-tight text-white font-cinzel group-hover:text-gray-100 transition">CJPTV</span>
+          <span class="text-3xl sm:text-4xl font-black text-[#FF5722] font-cinzel group-hover:text-orange-400 transition">.IN</span>
         </div>
         <div class="text-[9px] sm:text-[10px] tracking-[0.25em] font-bold text-gray-400 mt-1 uppercase">
           Your News. Your Voice.
         </div>
       </div>
 
-      <!-- Right: Search & Live Button -->
+      <!-- Right: Search & Direct Admin Button -->
       <div class="flex items-center space-x-2.5">
-        <button onclick="openSearchModal()" class="w-10 h-10 rounded-full bg-[#242424] border border-[#333333] flex items-center justify-center text-gray-300 hover:text-white hover:border-[#FF5722] transition">
+        <button onclick="openSearchModal()" class="w-10 h-10 rounded-full bg-[#242424] border border-[#333333] flex items-center justify-center text-gray-300 hover:text-white hover:border-[#FF5722] transition" title="Search Stories">
           <i class="fa-solid fa-magnifying-glass"></i>
         </button>
-        <button onclick="filterLiveUpdates()" class="flex items-center space-x-1.5 bg-[#E53935] hover:bg-red-700 text-white text-xs font-bold px-3 py-2 rounded-full transition shadow-md">
-          <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
-          <span>LIVE</span>
-        </button>
+        <a href="admin.html" class="flex items-center space-x-1.5 bg-[#FF5722] hover:bg-orange-600 text-white text-xs font-bold px-3.5 py-2 rounded-full transition shadow-md">
+          <i class="fa-solid fa-gauge text-[11px]"></i>
+          <span class="hidden sm:inline">Admin</span> Panel
+        </a>
       </div>
     </div>
 
     <!-- Category Nav Bar -->
-    <nav class="bg-[#161616] border-t border-[#262626] overflow-x-auto scrollbar-none">
+    <nav class="bg-[#151515] border-t border-[#262626] overflow-x-auto scrollbar-none">
       <div class="max-w-7xl mx-auto px-4 sm:px-8 flex items-center space-x-6 text-sm font-semibold whitespace-nowrap py-2.5" id="categoryNav">
         <button onclick="filterCategory(null)" class="category-tab active text-[#FF5722] border-b-2 border-[#FF5722] pb-0.5" data-category="all">
           Top Stories
@@ -155,9 +181,9 @@
   </header>
 
   <!-- Breaking Ticker -->
-  <div class="bg-[#B71C1C] text-white flex items-center text-xs font-bold overflow-hidden border-b border-red-900 shadow-inner">
-    <div class="bg-[#7F0000] px-4 py-2 flex items-center space-x-2 z-10 shrink-0 uppercase tracking-wider text-[11px]">
-      <i class="fa-solid fa-bolt text-amber-300"></i>
+  <div class="bg-[#9B111E] text-white flex items-center text-xs font-bold overflow-hidden border-b border-red-900 shadow-inner">
+    <div class="bg-[#6B000B] px-4 py-2 flex items-center space-x-2 z-10 shrink-0 uppercase tracking-wider text-[11px]">
+      <i class="fa-solid fa-bolt text-amber-300 animate-bounce"></i>
       <span>Breaking</span>
     </div>
     <div class="overflow-hidden whitespace-nowrap w-full py-1.5 px-2">
@@ -166,9 +192,9 @@
         <span>•</span>
         <span>India seals landmark renewable energy pact; Rs 45,000 Crore investment outlined</span>
         <span>•</span>
-        <span>Bihar Board announces updated exam guidelines and digital answer sheet verification</span>
+        <span>Bihar Board announces updated digital certificate authentication system</span>
         <span>•</span>
-        <span>Global Tech Summit 2026 kicks off with new AI safeguards framework</span>
+        <span>Global Tech Summit 2026 kicks off with new AI safety framework</span>
       </div>
     </div>
   </div>
@@ -177,51 +203,52 @@
   <main class="max-w-7xl mx-auto px-4 sm:px-8 py-6 flex-1 w-full">
 
     <!-- Active Category Banner (when filtered) -->
-    <div id="categoryHeader" class="hidden mb-6 bg-[#1F1F1F] border border-[#333333] rounded-xl p-4 flex justify-between items-center">
+    <div id="categoryHeader" class="hidden mb-6 bg-[#1E1E1E] border border-[#333333] rounded-xl p-4 flex justify-between items-center shadow-lg">
       <div>
-        <span class="text-xs uppercase tracking-wider font-bold text-[#FF5722]">Browsing Category</span>
+        <span class="text-xs uppercase tracking-wider font-bold text-[#FF5722]">Category Beat</span>
         <h2 id="categoryTitle" class="text-xl font-bold text-white capitalize">Category</h2>
       </div>
-      <button onclick="filterCategory(null)" class="text-xs text-[#FF5722] hover:underline font-semibold flex items-center gap-1">
-        <i class="fa-solid fa-arrow-left"></i> View All Stories
+      <button onclick="filterCategory(null)" class="text-xs text-[#FF8A65] hover:text-white font-semibold flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#282828] border border-[#3A3A3A] transition">
+        <i class="fa-solid fa-arrow-left"></i> View All Top Stories
       </button>
     </div>
 
-    <!-- Hero / Lead Story Section -->
+    <!-- Lead / Hero Story Section -->
     <section id="heroSection" class="mb-8">
-      <div id="heroCard" class="bg-[#1E1E1E] border border-[#333333] rounded-2xl overflow-hidden shadow-2xl hover:border-[#FF5722] transition duration-300 grid grid-cols-1 lg:grid-cols-12 gap-0">
-        <div class="lg:col-span-7 relative h-72 lg:h-[420px] overflow-hidden bg-[#111]">
-          <img id="heroImage" src="https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80" alt="Hero News" class="w-full h-full object-cover">
-          <span class="absolute top-4 left-4 bg-[#FF5722] text-white text-xs font-black uppercase px-3 py-1.5 rounded-md tracking-wider shadow-md">
+      <div id="heroCard" class="bg-[#1A1A1A] border border-[#2F2F2F] hover:border-[#FF5722] rounded-2xl overflow-hidden shadow-2xl transition duration-300 grid grid-cols-1 lg:grid-cols-12 gap-0 cursor-pointer group">
+        <div class="lg:col-span-7 relative h-72 sm:h-80 lg:h-[440px] overflow-hidden bg-[#111]">
+          <img id="heroImage" src="https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80" alt="Lead News" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+          <span class="absolute top-4 left-4 bg-[#FF5722] text-white text-xs font-black uppercase px-3 py-1.5 rounded-md tracking-wider shadow-lg flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
             Lead Story
           </span>
         </div>
-        <div class="lg:col-span-5 p-6 lg:p-8 flex flex-col justify-between">
+        <div class="lg:col-span-5 p-6 lg:p-8 flex flex-col justify-between bg-gradient-to-b from-[#1E1E1E] to-[#171717]">
           <div>
             <div class="flex items-center space-x-2 text-xs text-gray-400 mb-3">
               <span id="heroCategory" class="text-[#FF8A65] font-bold uppercase tracking-wider">Patna & Bihar</span>
               <span>•</span>
-              <span id="heroDate">15 mins ago</span>
+              <span id="heroDate">Recent</span>
             </div>
-            <h1 id="heroTitle" class="text-2xl lg:text-3xl font-bold text-white font-serif hover:text-[#FF5722] transition cursor-pointer leading-tight mb-4">
+            <h1 id="heroTitle" class="text-2xl sm:text-3xl font-bold text-white font-serif group-hover:text-[#FF5722] transition leading-tight mb-4">
               Patna Metro Construction Fast-Tracked: Underground Tunnel Boring Starts for Corridor 2
             </h1>
             <p id="heroSummary" class="text-gray-300 text-sm leading-relaxed mb-6 line-clamp-3">
               The Urban Development Department and Patna Metro Rail Corporation have expedited tunneling operations beneath Fraser Road to ensure project completion by mid-2027.
             </p>
           </div>
-          <div class="flex items-center justify-between border-t border-[#2F2F2F] pt-4 mt-auto">
+          <div class="flex items-center justify-between border-t border-[#2B2B2B] pt-4 mt-auto">
             <div class="flex items-center space-x-3">
-              <div class="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center font-bold text-white text-xs">
+              <div class="w-9 h-9 rounded-full bg-[#FF5722] flex items-center justify-center font-bold text-white text-xs shadow-md">
                 SG
               </div>
               <div>
-                <div class="text-xs font-bold text-white">Sambhav Gupta</div>
+                <div class="text-xs font-bold text-white" id="heroAuthor">Sambhav Gupta</div>
                 <div class="text-[10px] text-gray-400">Founder & Editor-in-Chief</div>
               </div>
             </div>
-            <button onclick="readHeroArticle()" class="bg-[#FF5722] hover:bg-orange-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition">
-              Read Story <i class="fa-solid fa-arrow-right ml-1"></i>
+            <button onclick="event.stopPropagation(); readHeroArticle();" class="bg-[#FF5722] hover:bg-orange-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 shadow-md">
+              Read Story <i class="fa-solid fa-arrow-right text-[10px]"></i>
             </button>
           </div>
         </div>
@@ -230,34 +257,42 @@
 
     <!-- Trending Row -->
     <section class="mb-10" id="trendingSection">
-      <div class="flex items-center space-x-2 mb-4">
-        <span class="w-2.5 h-2.5 rounded-full bg-[#FF5722]"></span>
-        <h3 class="text-xs font-extrabold uppercase tracking-widest text-[#FF5722]">Trending & Viral</h3>
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#FF5722]"></span>
+          <h3 class="text-xs font-extrabold uppercase tracking-widest text-[#FF5722]">Trending Across India</h3>
+        </div>
+        <span class="text-[11px] text-gray-400">Most Read Today</span>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="trendingList">
         <!-- Trending cards injected dynamically -->
       </div>
     </section>
 
-    <!-- Video Reports Carousel -->
-    <section class="mb-10 bg-[#191919] border border-[#2B2B2B] rounded-2xl p-5" id="videoSection">
-      <div class="flex items-center justify-between mb-4">
+    <!-- Ground Reports & Video Desk -->
+    <section class="mb-10 bg-[#181818] border border-[#2B2B2B] rounded-2xl p-5 sm:p-6 shadow-xl" id="videoSection">
+      <div class="flex items-center justify-between mb-5">
         <div class="flex items-center space-x-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-[#E53935]"></span>
-          <h3 class="text-xs font-extrabold uppercase tracking-widest text-white">Video Desk & Ground Reports</h3>
+          <span class="w-2.5 h-2.5 rounded-full bg-[#E53935] animate-pulse"></span>
+          <h3 class="text-xs font-extrabold uppercase tracking-widest text-white">CJPTV Video Desk & Ground Reports</h3>
         </div>
-        <span class="text-xs text-gray-400">Curated Ground Coverage</span>
+        <span class="text-xs text-gray-400">Special Visual Coverage</span>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="videoList">
         <!-- Video cards injected dynamically -->
       </div>
     </section>
 
-    <!-- Main Feed Grid -->
+    <!-- Main Articles Grid -->
     <section>
-      <div class="flex items-center space-x-2 mb-6">
-        <span class="w-2.5 h-2.5 rounded-full bg-white"></span>
-        <h3 class="text-xs font-extrabold uppercase tracking-widest text-white" id="feedHeading">Latest Stories & Special Reports</h3>
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center space-x-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-white"></span>
+          <h3 class="text-xs font-extrabold uppercase tracking-widest text-white" id="feedHeading">Latest Stories & Special Reports</h3>
+        </div>
+        <div class="text-xs text-gray-400" id="storyCountBadge">
+          Showing all stories
+        </div>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="articlesGrid">
         <!-- News cards injected dynamically -->
@@ -267,7 +302,7 @@
   </main>
 
   <!-- Website Footer -->
-  <footer class="bg-[#151515] border-t border-[#2B2B2B] mt-16 text-gray-400">
+  <footer class="bg-[#141414] border-t border-[#282828] mt-16 text-gray-400">
     <div class="max-w-7xl mx-auto px-4 sm:px-8 py-12">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
         
@@ -278,10 +313,12 @@
             <span class="text-2xl font-black text-[#FF5722] font-cinzel">.IN</span>
           </div>
           <p class="text-xs text-gray-400 leading-relaxed max-w-md">
-            CJPTV.in is an independent digital news platform founded by Sambhav Gupta, dedicated to fearless, credible, and grassroots journalism covering Bihar, India, and global affairs.
+            CJPTV.in is an independent digital news and media portal founded by Sambhav Gupta, dedicated to fearless, credible, and grassroots reporting covering Bihar, India, and global developments.
           </p>
-          <div class="bg-[#1E1E1E] p-3 rounded-xl border border-[#2F2F2F] flex items-center space-x-3 max-w-md">
-            <i class="fa-solid fa-award text-[#FF5722] text-xl"></i>
+          <div class="bg-[#1C1C1C] p-3.5 rounded-xl border border-[#2B2B2B] flex items-center space-x-3 max-w-md shadow-inner">
+            <div class="w-10 h-10 rounded-full bg-[#FF5722] text-white flex items-center justify-center font-bold text-sm">
+              SG
+            </div>
             <div>
               <div class="text-xs font-bold text-white">Sambhav Gupta</div>
               <div class="text-[10px] text-gray-400">Founder & Editor-in-Chief</div>
@@ -296,27 +333,31 @@
             <li><button onclick="filterCategory('bihar')" class="hover:text-[#FF5722] transition">Bihar News</button></li>
             <li><button onclick="filterCategory('india')" class="hover:text-[#FF5722] transition">National News</button></li>
             <li><button onclick="filterCategory('politics')" class="hover:text-[#FF5722] transition">Politics & Governance</button></li>
-            <li><button onclick="filterCategory('business')" class="hover:text-[#FF5722] transition">Economy & Startups</button></li>
+            <li><button onclick="filterCategory('business')" class="hover:text-[#FF5722] transition">Economy & Business</button></li>
             <li><button onclick="filterCategory('sports')" class="hover:text-[#FF5722] transition">Sports & Cricket</button></li>
-            <li><button onclick="filterCategory('technology')" class="hover:text-[#FF5722] transition">Tech & Innovation</button></li>
+            <li><button onclick="filterCategory('technology')" class="hover:text-[#FF5722] transition">Technology & AI</button></li>
           </ul>
         </div>
 
-        <!-- Col 3: Quick Links & Legal -->
+        <!-- Col 3: Quick Links & Admin Access -->
         <div>
-          <h4 class="text-xs font-extrabold uppercase tracking-wider text-white mb-4">Information & Trust</h4>
-          <ul class="space-y-2 text-xs">
-            <li><button onclick="openAboutModal()" class="hover:text-[#FF5722] transition">About Us & Leadership</button></li>
-            <li><button onclick="openPolicyModal('terms')" class="hover:text-[#FF5722] transition">Code of Ethics & Policies</button></li>
-            <li><button onclick="openPolicyModal('privacy')" class="hover:text-[#FF5722] transition">Privacy & Cookies</button></li>
-            <li><button onclick="openPolicyModal('contact')" class="hover:text-[#FF5722] transition">Contact & Press Grievances</button></li>
-            <li><button onclick="openStaffModal()" class="text-gray-600 hover:text-gray-400 transition flex items-center gap-1"><i class="fa-solid fa-lock text-[10px]"></i> Staff Desk</button></li>
+          <h4 class="text-xs font-extrabold uppercase tracking-wider text-white mb-4">Newsroom & Legal</h4>
+          <ul class="space-y-2.5 text-xs">
+            <li><button onclick="openAboutModal()" class="hover:text-[#FF5722] transition">About Founder & Mission</button></li>
+            <li><button onclick="openPolicyModal('terms')" class="hover:text-[#FF5722] transition">Code of Ethics & Standards</button></li>
+            <li><button onclick="openPolicyModal('privacy')" class="hover:text-[#FF5722] transition">Privacy Policy</button></li>
+            <li><button onclick="openPolicyModal('contact')" class="hover:text-[#FF5722] transition">Press Inquiries & Contact</button></li>
+            <li class="pt-2 border-t border-[#262626]">
+              <a href="admin.html" class="text-[#FF8A65] hover:text-white transition flex items-center gap-1.5 font-bold">
+                <i class="fa-solid fa-lock text-xs"></i> Open Admin Desk
+              </a>
+            </li>
           </ul>
         </div>
 
       </div>
 
-      <div class="border-t border-[#262626] pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500">
+      <div class="border-t border-[#242424] pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500">
         <div>© 2026 CJPTV.in. All Rights Reserved. Founded by Sambhav Gupta.</div>
         <div class="mt-2 sm:mt-0 flex space-x-4">
           <span>Fast</span>
@@ -331,9 +372,9 @@
 
   <!-- Slide-out Website Drawer Menu -->
   <div id="menuDrawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden transition-opacity">
-    <div class="fixed top-0 left-0 bottom-0 w-80 max-w-full bg-[#181818] border-r border-[#333333] p-6 overflow-y-auto flex flex-col justify-between">
+    <div class="fixed top-0 left-0 bottom-0 w-80 max-w-full bg-[#181818] border-r border-[#2E2E2E] p-6 overflow-y-auto flex flex-col justify-between shadow-2xl">
       <div>
-        <div class="flex justify-between items-center pb-4 border-b border-[#2A2A2A] mb-6">
+        <div class="flex justify-between items-center pb-4 border-b border-[#282828] mb-6">
           <div class="flex items-center space-x-2">
             <span class="text-2xl font-black text-white font-cinzel">CJPTV</span>
             <span class="text-2xl font-black text-[#FF5722] font-cinzel">.IN</span>
@@ -343,7 +384,6 @@
           </button>
         </div>
 
-        <!-- Quick Sections in Menu -->
         <div class="mb-6">
           <h5 class="text-[11px] font-bold uppercase tracking-wider text-gray-500 mb-3">News Beats</h5>
           <div class="space-y-1 text-sm">
@@ -391,27 +431,23 @@
             <button onclick="openPolicyModal('terms'); toggleMenu();" class="w-full text-left py-2 px-3 rounded-lg hover:bg-[#252525] text-gray-300 hover:text-white">
               Editorial Policy
             </button>
-            <button onclick="openPolicyModal('privacy'); toggleMenu();" class="w-full text-left py-2 px-3 rounded-lg hover:bg-[#252525] text-gray-300 hover:text-white">
-              Privacy Policy
-            </button>
           </div>
         </div>
       </div>
 
-      <!-- Secret Editorial Portal link in Drawer -->
-      <div class="pt-4 border-t border-[#262626]">
-        <button onclick="openStaffModal(); toggleMenu();" class="w-full text-center py-2 text-xs text-gray-600 hover:text-gray-400 flex items-center justify-center gap-1.5 transition">
-          <i class="fa-solid fa-lock text-[10px]"></i>
-          <span>Editorial Publishing Desk</span>
-        </button>
+      <div class="pt-4 border-t border-[#282828]">
+        <a href="admin.html" class="w-full text-center py-2.5 px-3 bg-[#FF5722] hover:bg-orange-600 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md transition">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Open Newsroom Admin Desk</span>
+        </a>
       </div>
     </div>
   </div>
 
   <!-- Article Detail Modal -->
   <div id="articleModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden overflow-y-auto p-4 sm:p-6 flex items-center justify-center">
-    <div class="bg-[#1C1C1C] border border-[#333333] rounded-2xl max-w-3xl w-full p-6 sm:p-8 my-8 relative max-h-[90vh] overflow-y-auto">
-      <button onclick="closeArticleModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#2B2B2B] text-gray-300 hover:text-white flex items-center justify-center">
+    <div class="bg-[#1C1C1C] border border-[#333333] rounded-2xl max-w-3xl w-full p-6 sm:p-8 my-8 relative max-h-[90vh] overflow-y-auto shadow-2xl">
+      <button onclick="closeArticleModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#2A2A2A] text-gray-300 hover:text-white flex items-center justify-center">
         <i class="fa-solid fa-xmark"></i>
       </button>
 
@@ -422,7 +458,7 @@
         Article Title
       </h1>
 
-      <div class="flex items-center space-x-3 pb-4 mb-4 border-b border-[#2C2C2C] text-xs text-gray-400">
+      <div class="flex items-center space-x-3 pb-4 mb-5 border-b border-[#2C2C2C] text-xs text-gray-400">
         <div class="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center text-white font-bold">
           SG
         </div>
@@ -433,19 +469,21 @@
         </div>
       </div>
 
-      <img id="modalImage" src="" alt="" class="w-full h-72 sm:h-96 object-cover rounded-xl mb-6 bg-[#111]">
+      <img id="modalImage" src="" alt="" class="w-full h-72 sm:h-96 object-cover rounded-xl mb-6 bg-[#111] shadow-md">
 
       <div class="prose prose-invert max-w-none text-gray-300 leading-relaxed text-sm sm:text-base space-y-4" id="modalContent">
-        <!-- Content -->
+        <!-- Content injected dynamically -->
       </div>
 
       <div class="mt-8 pt-6 border-t border-[#2C2C2C] flex justify-between items-center">
         <div class="text-xs text-gray-400">
-          Published by <strong class="text-white">CJPTV.in</strong>
+          Published by <strong class="text-white font-cinzel">CJPTV.in</strong>
         </div>
-        <button onclick="shareArticleModal()" class="bg-[#2B2B2B] hover:bg-[#3B3B3B] text-white text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center gap-1.5">
-          <i class="fa-solid fa-share-nodes"></i> Share Story
-        </button>
+        <div class="flex items-center space-x-2">
+          <button onclick="shareArticleModal()" class="bg-[#FF5722] hover:bg-orange-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center gap-1.5 shadow-md">
+            <i class="fa-solid fa-share-nodes"></i> Share Story
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -466,106 +504,9 @@
     </div>
   </div>
 
-  <!-- Secret Staff Editorial Desk (Protected by PIN 061289) -->
-  <div id="staffModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden p-4 sm:p-8 flex items-center justify-center">
-    <div class="bg-[#1B1B1B] border border-[#333333] rounded-2xl max-w-2xl w-full p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
-      <button onclick="closeStaffModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
-        <i class="fa-solid fa-xmark text-lg"></i>
-      </button>
-
-      <!-- PIN Auth Screen -->
-      <div id="staffAuthSection" class="text-center py-8">
-        <div class="w-16 h-16 rounded-full bg-[#2A2A2A] border border-[#3A3A3A] flex items-center justify-center mx-auto mb-4 text-[#FF5722] text-2xl">
-          <i class="fa-solid fa-shield-halved"></i>
-        </div>
-        <h3 class="text-xl font-bold text-white mb-2">Editorial Desk Gate</h3>
-        <p class="text-xs text-gray-400 mb-6 max-w-sm mx-auto">Please enter authorized security PIN to access the publishing desk.</p>
-        
-        <div class="max-w-xs mx-auto space-y-3">
-          <input type="password" id="staffPinInput" placeholder="••••••" maxlength="10" class="w-full text-center tracking-widest text-lg bg-[#252525] border border-[#3A3A3A] text-white rounded-xl p-3 focus:outline-none focus:border-[#FF5722]">
-          <div id="pinError" class="text-xs text-red-400 hidden">Access Denied: Incorrect Security PIN</div>
-          <button onclick="verifyStaffPin()" class="w-full bg-[#FF5722] hover:bg-orange-600 text-white font-bold text-sm py-3 rounded-xl transition">
-            Verify & Enter Desk
-          </button>
-        </div>
-      </div>
-
-      <!-- Publishing Desk Panel (Shown once PIN 061289 is verified) -->
-      <div id="staffPublishSection" class="hidden">
-        <div class="flex justify-between items-center pb-4 border-b border-[#2D2D2D] mb-6">
-          <div>
-            <span class="text-[10px] font-bold uppercase tracking-wider text-green-400 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-green-500"></span> Authenticated Editor
-            </span>
-            <h3 class="text-lg font-bold text-white">Publish New Article</h3>
-          </div>
-          <button onclick="resetDemoData()" class="text-xs bg-[#2A2A2A] text-gray-300 hover:text-white px-3 py-1.5 rounded-lg">
-            Reset Demo Data
-          </button>
-        </div>
-
-        <form id="publishForm" onsubmit="handlePublishArticle(event)" class="space-y-4 text-xs">
-          <div>
-            <label class="block text-gray-300 font-semibold mb-1">Headline / Title *</label>
-            <input type="text" id="articleTitleInput" required placeholder="Enter compelling headline..." class="w-full bg-[#242424] border border-[#3A3A3A] text-white rounded-lg p-2.5 focus:outline-none focus:border-[#FF5722]">
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-gray-300 font-semibold mb-1">Category *</label>
-              <select id="articleCategoryInput" required class="w-full bg-[#242424] border border-[#3A3A3A] text-white rounded-lg p-2.5 focus:outline-none focus:border-[#FF5722]">
-                <option value="bihar">Bihar News</option>
-                <option value="india">National News</option>
-                <option value="politics">Politics</option>
-                <option value="business">Business</option>
-                <option value="sports">Sports</option>
-                <option value="technology">Technology</option>
-                <option value="world">World</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-gray-300 font-semibold mb-1">Author Name *</label>
-              <input type="text" id="articleAuthorInput" value="Sambhav Gupta" required class="w-full bg-[#242424] border border-[#3A3A3A] text-white rounded-lg p-2.5 focus:outline-none focus:border-[#FF5722]">
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-gray-300 font-semibold mb-1">Image URL (Unsplash or direct image link)</label>
-            <input type="url" id="articleImageInput" placeholder="https://images.unsplash.com/..." class="w-full bg-[#242424] border border-[#3A3A3A] text-white rounded-lg p-2.5 focus:outline-none focus:border-[#FF5722]">
-          </div>
-
-          <div>
-            <label class="block text-gray-300 font-semibold mb-1">Short Lead Summary *</label>
-            <textarea id="articleSummaryInput" rows="2" required placeholder="Brief 1-2 sentence lead summary..." class="w-full bg-[#242424] border border-[#3A3A3A] text-white rounded-lg p-2.5 focus:outline-none focus:border-[#FF5722]"></textarea>
-          </div>
-
-          <div>
-            <label class="block text-gray-300 font-semibold mb-1">Full Article Body *</label>
-            <textarea id="articleBodyInput" rows="5" required placeholder="Full journalistic reporting body paragraphs..." class="w-full bg-[#242424] border border-[#3A3A3A] text-white rounded-lg p-2.5 focus:outline-none focus:border-[#FF5722]"></textarea>
-          </div>
-
-          <div class="flex items-center space-x-6 pt-2">
-            <label class="flex items-center space-x-2 cursor-pointer text-gray-300">
-              <input type="checkbox" id="isBreakingInput" class="rounded text-[#FF5722] focus:ring-[#FF5722]">
-              <span>Set as Breaking Ticker</span>
-            </label>
-            <label class="flex items-center space-x-2 cursor-pointer text-gray-300">
-              <input type="checkbox" id="isFeaturedInput" class="rounded text-[#FF5722] focus:ring-[#FF5722]">
-              <span>Make Lead Story</span>
-            </label>
-          </div>
-
-          <button type="submit" class="w-full bg-[#FF5722] hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition text-sm mt-4">
-            Publish Story Live Now
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-
   <!-- About / Leadership Modal -->
   <div id="aboutModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden p-4 sm:p-8 flex items-center justify-center">
-    <div class="bg-[#1C1C1C] border border-[#333333] rounded-2xl max-w-xl w-full p-6 sm:p-8 relative">
+    <div class="bg-[#1C1C1C] border border-[#333333] rounded-2xl max-w-xl w-full p-6 sm:p-8 relative shadow-2xl">
       <button onclick="closeAboutModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
         <i class="fa-solid fa-xmark text-lg"></i>
       </button>
@@ -579,9 +520,9 @@
         </div>
       </div>
       <p class="text-xs text-gray-300 leading-relaxed mb-4">
-        Sambhav Gupta founded CJPTV.in with a vision to build a modern, high-speed digital journalism network empowering readers across Bihar, India, and the world with factual reporting, real-time breaking tickers, and zero bias.
+        Sambhav Gupta founded CJPTV.in with a vision to build an uncompromising, high-speed digital journalism network empowering readers across Bihar, India, and the world with factual reporting, real-time breaking tickers, and zero bias.
       </p>
-      <div class="bg-[#242424] p-3 rounded-xl border border-[#333333] text-xs space-y-1 text-gray-400">
+      <div class="bg-[#242424] p-3.5 rounded-xl border border-[#333333] text-xs space-y-1.5 text-gray-400">
         <div><strong>HQ:</strong> Patna, Bihar, India</div>
         <div><strong>Editorial Standards:</strong> Press Council of India & Digital Media Ethics Code</div>
         <div><strong>Portal Domain:</strong> cjptv.in</div>
@@ -589,12 +530,12 @@
     </div>
   </div>
 
-  <!-- Javascript Logic -->
+  <!-- Javascript Logic with Universal Cross-Device Cloud Sync -->
   <script>
-    // Initial News Data
-    const DEFAULT_ARTICLES = [
+    // Default Seed Articles
+    const SEED_ARTICLES = [
       {
-        id: 1,
+        id: "art-1",
         title: "Patna Metro Construction Fast-Tracked: Underground Tunnel Boring Starts for Corridor 2",
         category: "bihar",
         categoryName: "Bihar",
@@ -604,10 +545,11 @@
         summary: "The Urban Development Department and Patna Metro Rail Corporation have expedited tunneling operations beneath Fraser Road to ensure project completion by mid-2027.",
         content: "PATNA — The Urban Development Department along with the Patna Metro Rail Corporation (PMRC) announced on Friday that underground tunnel boring machine (TBM) operations have formally commenced for Corridor 2. The project connects Patna Junction to New ISBT via key arterial nodes.\n\nAccording to officials, double-shield tunneling technology is being deployed to minimize surface traffic disruption along Frazer Road and Dak Bungalow crossing. Special environmental sensors have been placed along the perimeter to monitor vibration levels.",
         isFeatured: true,
-        isTrending: true
+        isTrending: true,
+        createdAt: Date.now()
       },
       {
-        id: 2,
+        id: "art-2",
         title: "India Renews Historic Clean Energy Pact; Allocates Rs 45,000 Cr for Grid Modernization",
         category: "india",
         categoryName: "India",
@@ -617,11 +559,12 @@
         summary: "New initiatives in high-capacity solar corridors and inter-state transmission lines to boost rural and industrial clean power availability.",
         content: "NEW DELHI — In a landmark policy rollout, the Ministry of Power has greenlit a comprehensive modernization package worth Rs 45,000 Crore aimed at integrating green hydrogen and solar park corridors into the central electricity grid.",
         isFeatured: false,
-        isTrending: true
+        isTrending: true,
+        createdAt: Date.now() - 3600000
       },
       {
-        id: 3,
-        title: "Bihar Board Class 10 & 12 Digital Verification System Goes Live",
+        id: "art-3",
+        title: "Bihar Board Class 10 & 12 Digital Verification System Goes Live Statewide",
         category: "bihar",
         categoryName: "Bihar",
         author: "Education Desk",
@@ -630,10 +573,11 @@
         summary: "BSEB introduces QR-code enabled marksheets and instant verification portals for college and job applicants statewide.",
         content: "PATNA — The Bihar School Examination Board (BSEB) has launched its revamped digital verification portal allowing students, universities, and employers to authenticate academic certificates instantly via secure encrypted QR codes.",
         isFeatured: false,
-        isTrending: true
+        isTrending: true,
+        createdAt: Date.now() - 7200000
       },
       {
-        id: 4,
+        id: "art-4",
         title: "Global Tech Summit 2026: New AI Accountability Standards Adopted by 40 Nations",
         category: "technology",
         categoryName: "Tech",
@@ -643,10 +587,11 @@
         summary: "Tech leaders and global diplomats agree on mandatory watermarking for synthetic media and algorithmic safety audits.",
         content: "GENEVA — Delegates from over forty countries wrapped up the three-day AI Governance Summit by ratifying a unified framework that establishes safety baselines and mandatory watermarks for deep learning systems.",
         isFeatured: false,
-        isTrending: false
+        isTrending: false,
+        createdAt: Date.now() - 10800000
       },
       {
-        id: 5,
+        id: "art-5",
         title: "Sensex Surges 680 Points on Strong Auto and Banking Q3 Earnings",
         category: "business",
         categoryName: "Business",
@@ -656,10 +601,11 @@
         summary: "Domestic benchmark indices rallied led by heavyweights in auto manufacturing and private sector financial institutions.",
         content: "MUMBAI — Indian stock indices witnessed bullish momentum on Friday as strong quarterly revenues from key automotive leaders and private lenders spurred sustained domestic institutional buying.",
         isFeatured: false,
-        isTrending: false
+        isTrending: false,
+        createdAt: Date.now() - 14400000
       },
       {
-        id: 6,
+        id: "art-6",
         title: "India vs England 3rd Test: Stellar Bowling Attack Puts Hosts in Commanding Position",
         category: "sports",
         categoryName: "Sports",
@@ -669,7 +615,8 @@
         summary: "Pacers claim crucial top-order wickets before lunch on Day 3, restricting the visitors to 184 runs in the first innings.",
         content: "LEEDS — A disciplined spell of reverse swing and sharp seam movement allowed India to dominate the morning session of Day 3, picking up four wickets inside the opening twenty overs.",
         isFeatured: false,
-        isTrending: false
+        isTrending: false,
+        createdAt: Date.now() - 18000000
       }
     ];
 
@@ -697,76 +644,138 @@
       }
     ];
 
-    // Local Storage Management
-    function getArticles() {
+    // Local & Cloud State
+    let currentArticles = [];
+    let currentCategoryFilter = null;
+    let db = null;
+
+    // Initialize Firebase if configured
+    function initFirebaseSync() {
+      try {
+        const customConfig = localStorage.getItem('cjptv_firebase_config');
+        if (customConfig) {
+          const config = JSON.parse(customConfig);
+          if (!firebase.apps.length) {
+            firebase.initializeApp(config);
+          }
+          db = firebase.firestore();
+          
+          // Setup real-time listener for all devices worldwide
+          db.collection("cjptv_news").orderBy("createdAt", "desc").onSnapshot(snapshot => {
+            if (!snapshot.empty) {
+              const cloudArticles = [];
+              snapshot.forEach(doc => {
+                cloudArticles.push({ id: doc.id, ...doc.data() });
+              });
+              currentArticles = cloudArticles;
+              localStorage.setItem('cjptv_articles', JSON.stringify(cloudArticles));
+              renderAll();
+              document.getElementById('cloudStatusText').innerText = "Live Cloud Connected";
+            }
+          }, err => {
+            console.log("Cloud sync listener status:", err);
+          });
+        }
+      } catch (e) {
+        console.warn("Firebase sync error:", e);
+      }
+    }
+
+    // Load saved articles from local storage or seed
+    function loadArticles() {
       const saved = localStorage.getItem('cjptv_articles');
       if (saved) {
-        try { return JSON.parse(saved); } catch(e) {}
+        try {
+          currentArticles = JSON.parse(saved);
+          return;
+        } catch(e) {}
       }
-      return DEFAULT_ARTICLES;
+      currentArticles = SEED_ARTICLES;
+      localStorage.setItem('cjptv_articles', JSON.stringify(currentArticles));
     }
-
-    function saveArticles(articles) {
-      localStorage.setItem('cjptv_articles', JSON.stringify(articles));
-    }
-
-    let currentCategoryFilter = null;
 
     // Initialize Page
     document.addEventListener('DOMContentLoaded', () => {
-      // Set Formatted Date
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
       document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-US', options);
 
+      loadArticles();
+      initFirebaseSync();
       renderAll();
+
+      // Listen for local updates from admin tab
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'cjptv_articles') {
+          loadArticles();
+          renderAll();
+        }
+      });
     });
 
     function renderAll() {
-      const articles = getArticles();
-      renderHero(articles);
-      renderTrending(articles);
+      renderHero(currentArticles);
+      renderTrending(currentArticles);
       renderVideos();
-      renderArticlesGrid(articles);
+      renderArticlesGrid(currentArticles);
+      updateTicker();
+    }
+
+    function updateTicker() {
+      const breakingArticles = currentArticles.filter(a => a.isBreaking || a.isFeatured);
+      if (breakingArticles.length > 0) {
+        const tickerHtml = breakingArticles.map(a => `<span>${a.title}</span>`).join('<span>•</span>');
+        document.getElementById('tickerContent').innerHTML = tickerHtml + '<span>•</span>' + tickerHtml;
+      }
     }
 
     function renderHero(articles) {
+      if (!articles || articles.length === 0) return;
       const hero = articles.find(a => a.isFeatured) || articles[0];
       if (!hero) return;
 
-      document.getElementById('heroImage').src = hero.image;
+      document.getElementById('heroImage').src = hero.image || "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80";
       document.getElementById('heroCategory').innerText = hero.categoryName || hero.category;
       document.getElementById('heroDate').innerText = hero.date || 'Recent';
       document.getElementById('heroTitle').innerText = hero.title;
       document.getElementById('heroSummary').innerText = hero.summary;
+      document.getElementById('heroAuthor').innerText = hero.author || 'Sambhav Gupta';
       document.getElementById('heroCard').onclick = () => openArticleModal(hero.id);
     }
 
     function readHeroArticle() {
-      const articles = getArticles();
-      const hero = articles.find(a => a.isFeatured) || articles[0];
+      const hero = currentArticles.find(a => a.isFeatured) || currentArticles[0];
       if (hero) openArticleModal(hero.id);
     }
 
     function renderTrending(articles) {
       const trending = articles.filter(a => a.isTrending).slice(0, 3);
       const container = document.getElementById('trendingList');
-      container.innerHTML = trending.map((item, idx) => `
-        <div onclick="openArticleModal(${item.id})" class="bg-[#1C1C1C] border border-[#2F2F2F] hover:border-[#FF5722] p-4 rounded-xl cursor-pointer transition flex items-start space-x-3">
-          <span class="text-2xl font-black text-[#FF5722] opacity-80 font-cinzel">0${idx + 1}</span>
-          <div>
+      if (trending.length === 0) {
+        const top3 = articles.slice(0, 3);
+        container.innerHTML = top3.map((item, idx) => generateTrendingCard(item, idx)).join('');
+        return;
+      }
+      container.innerHTML = trending.map((item, idx) => generateTrendingCard(item, idx)).join('');
+    }
+
+    function generateTrendingCard(item, idx) {
+      return `
+        <div onclick="openArticleModal('${item.id}')" class="bg-[#1C1C1C] border border-[#2F2F2F] hover:border-[#FF5722] p-4 rounded-xl cursor-pointer transition flex items-start space-x-3 shadow-md group">
+          <span class="text-2xl font-black text-[#FF5722] opacity-90 font-cinzel">0${idx + 1}</span>
+          <div class="overflow-hidden">
             <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">${item.categoryName || item.category}</span>
-            <h4 class="text-xs font-bold text-white hover:text-[#FF5722] transition line-clamp-2 mt-1 leading-snug">
+            <h4 class="text-xs font-bold text-white group-hover:text-[#FF5722] transition line-clamp-2 mt-1 leading-snug">
               ${item.title}
             </h4>
           </div>
         </div>
-      `).join('');
+      `;
     }
 
     function renderVideos() {
       const container = document.getElementById('videoList');
       container.innerHTML = DEFAULT_VIDEOS.map(video => `
-        <div class="bg-[#222222] border border-[#333333] rounded-xl overflow-hidden group cursor-pointer hover:border-[#FF5722] transition">
+        <div class="bg-[#202020] border border-[#303030] rounded-xl overflow-hidden group cursor-pointer hover:border-[#FF5722] transition shadow-md">
           <div class="relative h-40 overflow-hidden bg-black">
             <img src="${video.thumbnail}" alt="" class="w-full h-full object-cover group-hover:scale-105 transition duration-300 opacity-90">
             <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
@@ -778,7 +787,7 @@
               ${video.duration}
             </span>
           </div>
-          <div class="p-3">
+          <div class="p-3.5">
             <h5 class="text-xs font-bold text-white line-clamp-2 group-hover:text-[#FF5722] transition">${video.title}</h5>
             <div class="text-[10px] text-gray-400 mt-2 flex items-center justify-between">
               <span>CJPTV Video Desk</span>
@@ -794,27 +803,31 @@
       let list = articles;
 
       if (currentCategoryFilter) {
-        list = articles.filter(a => a.category.toLowerCase() === currentCategoryFilter.toLowerCase());
+        list = articles.filter(a => a.category && a.category.toLowerCase() === currentCategoryFilter.toLowerCase());
       }
+
+      document.getElementById('storyCountBadge').innerText = `${list.length} Stories`;
 
       if (list.length === 0) {
         container.innerHTML = `
-          <div class="col-span-full py-12 text-center text-gray-400">
-            <i class="fa-solid fa-newspaper text-3xl mb-3 text-gray-600"></i>
-            <p class="text-sm">No articles found in this category yet.</p>
+          <div class="col-span-full py-16 text-center text-gray-400 bg-[#1A1A1A] border border-[#2B2B2B] rounded-2xl">
+            <i class="fa-solid fa-newspaper text-4xl mb-3 text-gray-600"></i>
+            <p class="text-sm font-semibold">No stories available in this category yet.</p>
+            <p class="text-xs text-gray-500 mt-1">Use the Admin Desk to publish a new story in this beat!</p>
           </div>
         `;
         return;
       }
 
       container.innerHTML = list.map(item => `
-        <article onclick="openArticleModal(${item.id})" class="bg-[#1C1C1C] border border-[#2E2E2E] hover:border-[#FF5722] rounded-xl overflow-hidden transition cursor-pointer flex flex-col justify-between group">
+        <article onclick="openArticleModal('${item.id}')" class="bg-[#1C1C1C] border border-[#2B2B2B] hover:border-[#FF5722] rounded-xl overflow-hidden transition cursor-pointer flex flex-col justify-between group shadow-lg">
           <div>
-            <div class="h-44 overflow-hidden relative bg-[#111]">
-              <img src="${item.image}" alt="" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-              <span class="absolute top-3 left-3 bg-black/70 text-[#FF8A65] text-[10px] font-bold uppercase px-2.5 py-1 rounded backdrop-blur-sm">
+            <div class="h-48 overflow-hidden relative bg-[#111]">
+              <img src="${item.image || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=600&q=80'}" alt="" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              <span class="absolute top-3 left-3 bg-black/80 text-[#FF8A65] text-[10px] font-bold uppercase px-2.5 py-1 rounded backdrop-blur-sm border border-[#333]">
                 ${item.categoryName || item.category}
               </span>
+              ${item.isBreaking ? '<span class="absolute top-3 right-3 bg-red-600 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded shadow">Breaking</span>' : ''}
             </div>
             <div class="p-4">
               <h4 class="text-sm font-bold text-white group-hover:text-[#FF5722] transition font-serif line-clamp-2 leading-snug mb-2">
@@ -826,14 +839,14 @@
             </div>
           </div>
           <div class="px-4 py-3 border-t border-[#262626] flex items-center justify-between text-[11px] text-gray-500">
-            <span>By ${item.author}</span>
+            <span>By ${item.author || 'Sambhav Gupta'}</span>
             <span>${item.date || 'Today'}</span>
           </div>
         </article>
       `).join('');
     }
 
-    // Category Filtering
+    // Filter Category
     function filterCategory(category) {
       currentCategoryFilter = category;
       const heroSec = document.getElementById('heroSection');
@@ -843,7 +856,6 @@
       const catTitle = document.getElementById('categoryTitle');
       const feedHeading = document.getElementById('feedHeading');
 
-      // Update Tab Styles
       document.querySelectorAll('.category-tab').forEach(tab => {
         const cat = tab.getAttribute('data-category');
         if ((!category && cat === 'all') || (cat === category)) {
@@ -860,8 +872,8 @@
         trendSec.classList.add('hidden');
         videoSec.classList.add('hidden');
         catHeader.classList.remove('hidden');
-        catTitle.innerText = category + ' News';
-        feedHeading.innerText = 'Articles in ' + category.toUpperCase();
+        catTitle.innerText = category.toUpperCase() + ' NEWS';
+        feedHeading.innerText = 'Stories in ' + category.toUpperCase();
       } else {
         heroSec.classList.remove('hidden');
         trendSec.classList.remove('hidden');
@@ -870,15 +882,11 @@
         feedHeading.innerText = 'Latest Stories & Special Reports';
       }
 
-      renderArticlesGrid(getArticles());
+      renderArticlesGrid(currentArticles);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function filterLiveUpdates() {
-      alert("Live ticker is active. Coverage is streaming real-time alerts on the top breaking bar!");
-    }
-
-    // Drawer Menu
+    // Toggle Mobile Drawer
     function toggleMenu() {
       const drawer = document.getElementById('menuDrawer');
       drawer.classList.toggle('hidden');
@@ -886,17 +894,19 @@
 
     // Article Modal
     function openArticleModal(id) {
-      const article = getArticles().find(a => a.id === id);
+      const article = currentArticles.find(a => String(a.id) === String(id));
       if (!article) return;
 
       document.getElementById('modalCategory').innerText = article.categoryName || article.category;
       document.getElementById('modalTitle').innerText = article.title;
       document.getElementById('modalAuthor').innerText = article.author || 'Sambhav Gupta';
       document.getElementById('modalDate').innerText = article.date || 'Today';
-      document.getElementById('modalImage').src = article.image;
-      document.getElementById('modalContent').innerHTML = (article.content || article.summary)
+      document.getElementById('modalImage').src = article.image || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80';
+      
+      const bodyText = article.content || article.summary;
+      document.getElementById('modalContent').innerHTML = bodyText
         .split('\n\n')
-        .map(p => `<p>${p}</p>`)
+        .map(p => `<p class="mb-3 leading-relaxed">${p}</p>`)
         .join('');
 
       document.getElementById('articleModal').classList.remove('hidden');
@@ -912,11 +922,12 @@
       if (navigator.share) {
         navigator.share({
           title: document.getElementById('modalTitle').innerText,
+          text: "Read this on CJPTV.in - Your News. Your Voice.",
           url: window.location.href
         }).catch(() => {});
       } else {
         navigator.clipboard.writeText(window.location.href);
-        alert("Article link copied to clipboard!");
+        alert("Story link copied to clipboard!");
       }
     }
 
@@ -939,8 +950,7 @@
         return;
       }
 
-      const articles = getArticles();
-      const matched = articles.filter(a =>
+      const matched = currentArticles.filter(a =>
         a.title.toLowerCase().includes(query) ||
         (a.summary && a.summary.toLowerCase().includes(query)) ||
         (a.category && a.category.toLowerCase().includes(query))
@@ -952,87 +962,14 @@
       }
 
       resultsContainer.innerHTML = matched.map(m => `
-        <div onclick="closeSearchModal(); openArticleModal(${m.id});" class="p-3 bg-[#242424] hover:bg-[#2F2F2F] rounded-lg cursor-pointer transition flex items-center justify-between">
-          <div>
-            <span class="text-[9px] font-bold text-[#FF8A65] uppercase">${m.category}</span>
-            <div class="text-xs font-bold text-white">${m.title}</div>
+        <div onclick="closeSearchModal(); openArticleModal('${m.id}');" class="p-3 bg-[#242424] hover:bg-[#2F2F2F] rounded-xl cursor-pointer transition flex items-center space-x-3">
+          <img src="${m.image || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=100'}" class="w-12 h-12 object-cover rounded-lg shrink-0">
+          <div class="overflow-hidden">
+            <span class="text-[9px] font-bold text-[#FF8A65] uppercase">${m.categoryName || m.category}</span>
+            <h5 class="text-xs font-bold text-white line-clamp-1">${m.title}</h5>
           </div>
-          <i class="fa-solid fa-chevron-right text-gray-500 text-xs"></i>
         </div>
       `).join('');
-    }
-
-    // Staff Desk & PIN Authorization (061289)
-    function openStaffModal() {
-      document.getElementById('staffModal').classList.remove('hidden');
-      document.getElementById('staffAuthSection').classList.remove('hidden');
-      document.getElementById('staffPublishSection').classList.add('hidden');
-      document.getElementById('staffPinInput').value = '';
-      document.getElementById('pinError').classList.add('hidden');
-      setTimeout(() => document.getElementById('staffPinInput').focus(), 100);
-    }
-
-    function closeStaffModal() {
-      document.getElementById('staffModal').classList.add('hidden');
-    }
-
-    function verifyStaffPin() {
-      const pin = document.getElementById('staffPinInput').value.trim();
-      if (pin === "061289") {
-        document.getElementById('staffAuthSection').classList.add('hidden');
-        document.getElementById('staffPublishSection').classList.remove('hidden');
-        document.getElementById('pinError').classList.add('hidden');
-      } else {
-        document.getElementById('pinError').classList.remove('hidden');
-      }
-    }
-
-    // Article Publishing
-    function handlePublishArticle(e) {
-      e.preventDefault();
-      const title = document.getElementById('articleTitleInput').value.trim();
-      const category = document.getElementById('articleCategoryInput').value;
-      const author = document.getElementById('articleAuthorInput').value.trim();
-      const image = document.getElementById('articleImageInput').value.trim() || 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80';
-      const summary = document.getElementById('articleSummaryInput').value.trim();
-      const body = document.getElementById('articleBodyInput').value.trim();
-      const isBreaking = document.getElementById('isBreakingInput').checked;
-      const isFeatured = document.getElementById('isFeaturedInput').checked;
-
-      const articles = getArticles();
-      const newArticle = {
-        id: Date.now(),
-        title: title,
-        category: category,
-        categoryName: category.charAt(0).toUpperCase() + category.slice(1),
-        author: author,
-        date: "Just now",
-        image: image,
-        summary: summary,
-        content: body,
-        isFeatured: isFeatured,
-        isTrending: isBreaking
-      };
-
-      if (isFeatured) {
-        articles.forEach(a => a.isFeatured = false);
-      }
-
-      articles.unshift(newArticle);
-      saveArticles(articles);
-
-      alert("Article published successfully to CJPTV.in!");
-      closeStaffModal();
-      document.getElementById('publishForm').reset();
-      renderAll();
-    }
-
-    function resetDemoData() {
-      if (confirm("Reset to default sample articles?")) {
-        localStorage.removeItem('cjptv_articles');
-        renderAll();
-        closeStaffModal();
-      }
     }
 
     // Modals
@@ -1045,7 +982,7 @@
     }
 
     function openPolicyModal(type) {
-      alert(`CJPTV.in ${type.toUpperCase()} POLICY:\n\nCJPTV.in follows strict journalistic ethics, verification of source material, and prompt rectification of factual discrepancies.`);
+      alert("CJPTV.in adheres strictly to the Digital Media Ethics Code & Press Council of India standards. For press grievances, reach out to editorial@cjptv.in.");
     }
   </script>
 </body>
