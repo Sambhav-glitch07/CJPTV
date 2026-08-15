@@ -143,7 +143,7 @@
           </a>
 
           <button onclick="handleLogout()" class="bg-red-950/60 hover:bg-red-900/80 text-red-300 border border-red-900/60 font-semibold px-3 py-2 rounded-lg transition flex items-center gap-1.5">
-            <i class="fa-solid fa-arrow-right-bracket"></i>
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
             <span class="hidden sm:inline">Exit</span>
           </button>
         </div>
@@ -510,6 +510,7 @@
       checkAuth();
       loadArticles();
       initFirebase();
+      CloudSync.startAutoSync();
       updateMetrics();
       renderManageTable();
     });
@@ -636,6 +637,65 @@
     }
 
     // Article Data Management
+    // Universal Multi-Device Cloud Sync Relay
+    const CLOUD_CHANNEL_KEY = 'cjptv_news_relay_v2';
+    const CLOUD_API_PRIMARY = 'https://keyvalue.immanuel.co/api/KeyVal/GetValue/cjptv_news_relay_v2';
+    const CLOUD_API_SET = 'https://keyvalue.immanuel.co/api/KeyVal/SetValue/cjptv_news_relay_v2/';
+
+    const CloudSync = {
+      isSyncing: false,
+
+      async pull() {
+        if (this.isSyncing) return;
+        this.isSyncing = true;
+        try {
+          if (db) {
+            this.isSyncing = false;
+            return;
+          }
+          const res = await fetch(CLOUD_API_PRIMARY, { cache: 'no-store' });
+          if (res.ok) {
+            const data = await res.json();
+            if (data && Array.isArray(data) && data.length > 0) {
+              const currentSavedStr = localStorage.getItem('cjptv_articles');
+              const newStr = JSON.stringify(data);
+              if (currentSavedStr !== newStr) {
+                articles = data;
+                localStorage.setItem('cjptv_articles', newStr);
+                updateMetrics();
+                renderManageTable();
+              }
+            }
+          }
+        } catch (err) {
+          console.warn("Admin cloud relay pull error:", err);
+        } finally {
+          this.isSyncing = false;
+        }
+      },
+
+      async push(articlesList) {
+        try {
+          localStorage.setItem('cjptv_articles', JSON.stringify(articlesList));
+          const payload = encodeURIComponent(JSON.stringify(articlesList));
+          fetch(CLOUD_API_SET + payload, { method: 'POST' }).catch(console.warn);
+
+          if (db) {
+            articlesList.forEach(art => {
+              db.collection("cjptv_news").doc(String(art.id)).set(art).catch(console.warn);
+            });
+          }
+        } catch (e) {
+          console.warn("Admin cloud push error:", e);
+        }
+      },
+
+      startAutoSync() {
+        this.pull();
+        setInterval(() => this.pull(), 5000);
+      }
+    };
+
     function loadArticles() {
       const saved = localStorage.getItem('cjptv_articles');
       if (saved) {
@@ -650,11 +710,7 @@
     function saveArticles() {
       localStorage.setItem('cjptv_articles', JSON.stringify(articles));
       updateMetrics();
-      
-      // Save to Firebase Cloud Database if connected
-      if (db) {
-        // Broadcast updates
-      }
+      CloudSync.push(articles);
     }
 
     // DIRECT IMAGE UPLOAD & OPTIMIZATION
@@ -920,6 +976,9 @@
 
           <!-- Actions -->
           <div class="flex items-center space-x-2 shrink-0 self-end sm:self-center">
+            <button onclick="shareDirectFromAdmin('${item.id}')" class="bg-[#2A2A2A] hover:bg-[#FF5722] text-gray-300 hover:text-white p-2 rounded-lg text-xs border border-[#3A3A3A] transition" title="Copy / Share Direct News Link with Headline Slug">
+              <i class="fa-solid fa-share-nodes"></i>
+            </button>
             <button onclick="toggleStoryProperty('${item.id}', 'isFeatured')" class="p-2 rounded-lg ${item.isFeatured ? 'bg-orange-600 text-white' : 'bg-[#2A2A2A] text-gray-400 hover:text-white'} text-xs border border-[#3A3A3A] transition" title="Toggle Lead Story">
               <i class="fa-solid fa-star"></i>
             </button>
@@ -980,6 +1039,35 @@
       localStorage.removeItem('cjptv_firebase_config');
       document.getElementById('firebaseConfigInput').value = '';
       alert("Firebase configuration cleared.");
+    }
+
+    function createSlug(title) {
+      if (!title) return 'news-story';
+      return title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .substring(0, 75);
+    }
+
+    function shareDirectFromAdmin(id) {
+      const article = articles.find(a => String(a.id) === String(id));
+      if (!article) return;
+
+      const url = new URL(window.location.href);
+      url.pathname = url.pathname.replace('admin.html', 'index.html');
+      url.searchParams.set('news', article.id);
+      url.searchParams.set('title', createSlug(article.title));
+      const shareUrl = url.toString();
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          alert(`Direct headline story link copied:\n\n${shareUrl}\n\nSharing this link will automatically open "${article.title}" directly on any phone or PC!`);
+        });
+      } else {
+        prompt("Copy this direct news link:", shareUrl);
+      }
     }
 
     function restoreSeedData() {

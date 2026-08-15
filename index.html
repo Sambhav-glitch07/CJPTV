@@ -445,13 +445,36 @@
   </div>
 
   <!-- Article Detail Modal -->
-  <div id="articleModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden overflow-y-auto p-4 sm:p-6 flex items-center justify-center">
-    <div class="bg-[#1C1C1C] border border-[#333333] rounded-2xl max-w-3xl w-full p-6 sm:p-8 my-8 relative max-h-[90vh] overflow-y-auto shadow-2xl">
-      <button onclick="closeArticleModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#2A2A2A] text-gray-300 hover:text-white flex items-center justify-center">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
+  <div id="articleModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden overflow-y-auto p-3 sm:p-6 flex items-start justify-center pt-6 sm:pt-12">
+    <div class="bg-[#1C1C1C] border border-[#333333] rounded-2xl max-w-3xl w-full p-5 sm:p-8 my-4 relative max-h-[90vh] overflow-y-auto shadow-2xl">
+      
+      <!-- Top Action Bar -->
+      <div class="flex items-center justify-between pb-3 mb-4 border-b border-[#2C2C2C]">
+        <button onclick="closeArticleModal()" class="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white px-3 py-1.5 rounded-lg bg-[#262626] hover:bg-[#333] transition">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>All Stories</span>
+        </button>
+        
+        <div class="flex items-center space-x-2">
+          <button onclick="shareArticleTo('whatsapp')" class="w-8 h-8 rounded-full bg-[#25D366]/20 hover:bg-[#25D366] text-[#25D366] hover:text-white flex items-center justify-center transition" title="Share on WhatsApp">
+            <i class="fa-brands fa-whatsapp text-sm"></i>
+          </button>
+          <button onclick="shareArticleTo('twitter')" class="w-8 h-8 rounded-full bg-sky-500/20 hover:bg-sky-500 text-sky-400 hover:text-white flex items-center justify-center transition" title="Share on X / Twitter">
+            <i class="fa-brands fa-x-twitter text-sm"></i>
+          </button>
+          <button onclick="shareArticleTo('facebook')" class="w-8 h-8 rounded-full bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white flex items-center justify-center transition" title="Share on Facebook">
+            <i class="fa-brands fa-facebook-f text-sm"></i>
+          </button>
+          <button onclick="copyArticleDirectLink()" class="w-8 h-8 rounded-full bg-[#FF5722]/20 hover:bg-[#FF5722] text-[#FF5722] hover:text-white flex items-center justify-center transition" title="Copy News Link">
+            <i class="fa-solid fa-link text-xs"></i>
+          </button>
+          <button onclick="closeArticleModal()" class="w-8 h-8 rounded-full bg-[#2A2A2A] text-gray-400 hover:text-white flex items-center justify-center ml-2" title="Close">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+      </div>
 
-      <div class="flex items-center space-x-2 text-xs text-[#FF8A65] font-bold uppercase mb-3" id="modalCategory">
+      <div class="flex items-center space-x-2 text-xs text-[#FF8A65] font-bold uppercase mb-2" id="modalCategory">
         Category
       </div>
       <h1 class="text-2xl sm:text-3xl font-bold text-white font-serif mb-4 leading-snug" id="modalTitle">
@@ -459,8 +482,8 @@
       </h1>
 
       <div class="flex items-center space-x-3 pb-4 mb-5 border-b border-[#2C2C2C] text-xs text-gray-400">
-        <div class="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center text-white font-bold">
-          SG
+        <div class="w-8 h-8 rounded-full bg-[#FF5722] flex items-center justify-center text-white font-bold text-xs">
+          CJ
         </div>
         <div>
           <span class="font-bold text-white" id="modalAuthor">Sambhav Gupta</span>
@@ -469,23 +492,45 @@
         </div>
       </div>
 
-      <img id="modalImage" src="" alt="" class="w-full h-72 sm:h-96 object-cover rounded-xl mb-6 bg-[#111] shadow-md">
+      <img id="modalImage" src="" alt="" class="w-full h-64 sm:h-96 object-cover rounded-xl mb-6 bg-[#111] shadow-md">
 
-      <div class="prose prose-invert max-w-none text-gray-300 leading-relaxed text-sm sm:text-base space-y-4" id="modalContent">
+      <div class="prose prose-invert max-w-none text-gray-200 leading-relaxed text-sm sm:text-base space-y-4 font-sans" id="modalContent">
         <!-- Content injected dynamically -->
       </div>
 
-      <div class="mt-8 pt-6 border-t border-[#2C2C2C] flex justify-between items-center">
-        <div class="text-xs text-gray-400">
-          Published by <strong class="text-white font-cinzel">CJPTV.in</strong>
+      <!-- Social Share Bar Inside Article -->
+      <div class="mt-8 pt-6 border-t border-[#2C2C2C] space-y-4">
+        <div class="text-xs font-bold uppercase text-gray-400 tracking-wider">
+          <i class="fa-solid fa-share-nodes text-[#FF5722] mr-1"></i> Share This Exclusive Story:
         </div>
-        <div class="flex items-center space-x-2">
-          <button onclick="shareArticleModal()" class="bg-[#FF5722] hover:bg-orange-600 text-white text-xs font-semibold px-4 py-2 rounded-lg transition flex items-center gap-1.5 shadow-md">
-            <i class="fa-solid fa-share-nodes"></i> Share Story
+        <div class="flex flex-wrap gap-2">
+          <button onclick="shareArticleTo('whatsapp')" class="flex-1 min-w-[130px] bg-[#128C7E] hover:bg-[#075E54] text-white text-xs font-bold py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-2 shadow">
+            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
           </button>
+          <button onclick="shareArticleTo('twitter')" class="flex-1 min-w-[110px] bg-[#1d9bf0] hover:bg-[#0c85d0] text-white text-xs font-bold py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-2 shadow">
+            <i class="fa-brands fa-x-twitter text-sm"></i> Share
+          </button>
+          <button onclick="shareArticleTo('facebook')" class="flex-1 min-w-[110px] bg-[#1877F2] hover:bg-[#0d65d9] text-white text-xs font-bold py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-2 shadow">
+            <i class="fa-brands fa-facebook-f text-sm"></i> Facebook
+          </button>
+          <button onclick="shareArticleTo('telegram')" class="flex-1 min-w-[110px] bg-[#229ED9] hover:bg-[#1a85b8] text-white text-xs font-bold py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-2 shadow">
+            <i class="fa-brands fa-telegram text-sm"></i> Telegram
+          </button>
+          <button onclick="copyArticleDirectLink()" class="flex-1 min-w-[130px] bg-[#2E2E2E] hover:bg-[#3E3E3E] text-white text-xs font-bold py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-2 border border-[#444] shadow">
+            <i class="fa-solid fa-copy text-sm text-[#FF5722]"></i> Copy Link
+          </button>
+        </div>
+        <div class="text-[11px] text-gray-500 text-center pt-2">
+          Published by <strong class="text-white font-cinzel">CJPTV.in</strong> • Editorial Bureau Patna
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toastNotification" class="fixed bottom-6 right-6 z-50 bg-[#1E1E1E] border border-[#FF5722] text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs transform transition duration-300 translate-y-20 opacity-0 pointer-events-none">
+    <i class="fa-solid fa-circle-check text-green-400 text-sm" id="toastIcon"></i>
+    <span id="toastMessage">News link copied to clipboard!</span>
   </div>
 
   <!-- Search Modal -->
@@ -648,6 +693,99 @@
     let currentArticles = [];
     let currentCategoryFilter = null;
     let db = null;
+    let activeArticle = null;
+
+    // Universal Multi-Device Cloud Sync Relay
+    const CLOUD_CHANNEL_KEY = 'cjptv_news_relay_v2';
+    const CLOUD_API_PRIMARY = 'https://keyvalue.immanuel.co/api/KeyVal/GetValue/cjptv_news_relay_v2';
+    const CLOUD_API_SET = 'https://keyvalue.immanuel.co/api/KeyVal/SetValue/cjptv_news_relay_v2/';
+
+    const CloudSync = {
+      isSyncing: false,
+
+      async pull() {
+        if (this.isSyncing) return;
+        this.isSyncing = true;
+        try {
+          // If custom Firebase is connected, Firestore real-time listener will handle updates
+          if (db) {
+            this.isSyncing = false;
+            return;
+          }
+
+          const res = await fetch(CLOUD_API_PRIMARY, { cache: 'no-store' });
+          if (res.ok) {
+            const data = await res.json();
+            if (data && Array.isArray(data) && data.length > 0) {
+              const currentSavedStr = localStorage.getItem('cjptv_articles');
+              const newStr = JSON.stringify(data);
+              if (currentSavedStr !== newStr) {
+                currentArticles = data;
+                localStorage.setItem('cjptv_articles', newStr);
+                renderAll();
+                updateCloudStatusBadge(true, data.length);
+                checkPendingDeepLink();
+              } else {
+                updateCloudStatusBadge(true, data.length);
+              }
+            } else {
+              // Initial push if cloud was empty
+              if (currentArticles && currentArticles.length > 0) {
+                this.push(currentArticles);
+              }
+            }
+          }
+        } catch (err) {
+          console.warn("Cloud relay sync check:", err);
+          updateCloudStatusBadge(false);
+        } finally {
+          this.isSyncing = false;
+        }
+      },
+
+      async push(articlesList) {
+        try {
+          localStorage.setItem('cjptv_articles', JSON.stringify(articlesList));
+          
+          // Broadcast to Cloud KV Relay for instant sync to other phones
+          const payload = encodeURIComponent(JSON.stringify(articlesList));
+          fetch(CLOUD_API_SET + payload, { method: 'POST' }).catch(console.warn);
+
+          // If Firebase is configured, sync to Firestore as well
+          if (db) {
+            articlesList.forEach(art => {
+              db.collection("cjptv_news").doc(String(art.id)).set(art).catch(console.warn);
+            });
+          }
+          updateCloudStatusBadge(true, articlesList.length);
+        } catch (e) {
+          console.warn("Error pushing to cloud:", e);
+        }
+      },
+
+      startAutoSync() {
+        this.pull();
+        // Poll every 5 seconds for newly published stories from any other phone
+        setInterval(() => this.pull(), 5000);
+
+        // Immediate sync on page focus/re-visit
+        window.addEventListener('focus', () => this.pull());
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') this.pull();
+        });
+      }
+    };
+
+    function updateCloudStatusBadge(isOnline, count = 0) {
+      const badge = document.getElementById('cloudStatusText');
+      if (badge) {
+        if (isOnline) {
+          badge.innerText = count > 0 ? `Live Cloud Synced (${count})` : `Live Cloud Synced`;
+        } else {
+          badge.innerText = `Local Cache Ready`;
+        }
+      }
+    }
 
     // Initialize Firebase if configured
     function initFirebaseSync() {
@@ -670,10 +808,11 @@
               currentArticles = cloudArticles;
               localStorage.setItem('cjptv_articles', JSON.stringify(cloudArticles));
               renderAll();
-              document.getElementById('cloudStatusText').innerText = "Live Cloud Connected";
+              updateCloudStatusBadge(true, cloudArticles.length);
+              checkPendingDeepLink();
             }
           }, err => {
-            console.log("Cloud sync listener status:", err);
+            console.log("Firebase sync status:", err);
           });
         }
       } catch (e) {
@@ -703,11 +842,26 @@
       initFirebaseSync();
       renderAll();
 
+      // Start zero-setup universal multi-device cloud sync
+      CloudSync.startAutoSync();
+
+      // Check if URL directly targets an article (deep link)
+      checkUrlDeepLink();
+
       // Listen for local updates from admin tab
       window.addEventListener('storage', (e) => {
         if (e.key === 'cjptv_articles') {
           loadArticles();
           renderAll();
+        }
+      });
+
+      // Handle browser back/forward navigation
+      window.addEventListener('popstate', (e) => {
+        if (e.state && e.state.articleId) {
+          openArticleModal(e.state.articleId, false);
+        } else {
+          closeArticleModal();
         }
       });
     });
@@ -762,12 +916,15 @@
       return `
         <div onclick="openArticleModal('${item.id}')" class="bg-[#1C1C1C] border border-[#2F2F2F] hover:border-[#FF5722] p-4 rounded-xl cursor-pointer transition flex items-start space-x-3 shadow-md group">
           <span class="text-2xl font-black text-[#FF5722] opacity-90 font-cinzel">0${idx + 1}</span>
-          <div class="overflow-hidden">
+          <div class="overflow-hidden flex-1">
             <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">${item.categoryName || item.category}</span>
             <h4 class="text-xs font-bold text-white group-hover:text-[#FF5722] transition line-clamp-2 mt-1 leading-snug">
               ${item.title}
             </h4>
           </div>
+          <button onclick="event.stopPropagation(); quickShare('${item.id}');" class="text-gray-500 hover:text-[#FF5722] p-1 transition" title="Share">
+            <i class="fa-solid fa-share-nodes text-xs"></i>
+          </button>
         </div>
       `;
     }
@@ -840,7 +997,12 @@
           </div>
           <div class="px-4 py-3 border-t border-[#262626] flex items-center justify-between text-[11px] text-gray-500">
             <span>By ${item.author || 'Sambhav Gupta'}</span>
-            <span>${item.date || 'Today'}</span>
+            <div class="flex items-center space-x-2">
+              <span>${item.date || 'Today'}</span>
+              <button onclick="event.stopPropagation(); quickShare('${item.id}');" class="p-1 text-gray-400 hover:text-[#FF5722] transition" title="Share Story">
+                <i class="fa-solid fa-share-nodes text-xs"></i>
+              </button>
+            </div>
           </div>
         </article>
       `).join('');
@@ -892,11 +1054,60 @@
       drawer.classList.toggle('hidden');
     }
 
+    // ==========================================
+    // DEEP LINKING & HEADLINE URL SHARING SUITE
+    // ==========================================
+    function createSlug(title) {
+      if (!title) return 'news-story';
+      return title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .substring(0, 75);
+    }
+
+    function buildShareUrl(article) {
+      const url = new URL(window.location.href);
+      // Clean any admin path
+      let cleanPath = url.pathname.replace('admin.html', 'index.html');
+      url.pathname = cleanPath;
+      url.searchParams.set('news', article.id);
+      url.searchParams.set('title', createSlug(article.title));
+      return url.toString();
+    }
+
+    function checkUrlDeepLink() {
+      const params = new URLSearchParams(window.location.search);
+      const newsId = params.get('news') || params.get('id') || params.get('story');
+      if (newsId) {
+        const found = currentArticles.find(a => String(a.id) === String(newsId));
+        if (found) {
+          openArticleModal(found.id, false);
+        } else {
+          // Set pending so when cloud sync fetches news uploaded from other phones, it opens immediately
+          window.__pendingDeepLinkId = newsId;
+          CloudSync.pull();
+        }
+      }
+    }
+
+    function checkPendingDeepLink() {
+      if (window.__pendingDeepLinkId) {
+        const found = currentArticles.find(a => String(a.id) === String(window.__pendingDeepLinkId));
+        if (found) {
+          openArticleModal(found.id, false);
+          window.__pendingDeepLinkId = null;
+        }
+      }
+    }
+
     // Article Modal
-    function openArticleModal(id) {
+    function openArticleModal(id, updateUrl = true) {
       const article = currentArticles.find(a => String(a.id) === String(id));
       if (!article) return;
 
+      activeArticle = article;
       document.getElementById('modalCategory').innerText = article.categoryName || article.category;
       document.getElementById('modalTitle').innerText = article.title;
       document.getElementById('modalAuthor').innerText = article.author || 'Sambhav Gupta';
@@ -911,23 +1122,102 @@
 
       document.getElementById('articleModal').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
+
+      // Set page title to the article headline
+      document.title = `${article.title} | CJPTV.in`;
+
+      // Update URL with news ID and headline slug so anyone copying the browser address bar shares the exact news
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('news', article.id);
+        url.searchParams.set('title', createSlug(article.title));
+        window.history.replaceState({ articleId: article.id }, '', url.toString());
+      }
     }
 
     function closeArticleModal() {
+      activeArticle = null;
       document.getElementById('articleModal').classList.add('hidden');
       document.body.style.overflow = 'auto';
+      document.title = "CJPTV.in | Bihar & National News Portal | Real-time Updates";
+      
+      // Clean query parameters smoothly
+      const url = new URL(window.location.href);
+      url.searchParams.delete('news');
+      url.searchParams.delete('title');
+      url.searchParams.delete('id');
+      url.searchParams.delete('story');
+      window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
     }
 
-    function shareArticleModal() {
+    function shareArticleTo(platform) {
+      if (!activeArticle) return;
+      const url = buildShareUrl(activeArticle);
+      const title = activeArticle.title;
+      const summary = activeArticle.summary || '';
+
+      if (platform === 'whatsapp') {
+        const text = `🚨 *${title}*\n\n${summary}\n\n📰 *Read Full Story on CJPTV.in:* \n${url}`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+      } else if (platform === 'twitter') {
+        const text = `${title} - CJPTV.in`;
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+      } else if (platform === 'facebook') {
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+      } else if (platform === 'telegram') {
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, '_blank');
+      }
+    }
+
+    function copyArticleDirectLink() {
+      if (!activeArticle) return;
+      const url = buildShareUrl(activeArticle);
+      copyToClipboard(url, "Story link copied with headline slug!");
+    }
+
+    function quickShare(id) {
+      const article = currentArticles.find(a => String(a.id) === String(id));
+      if (!article) return;
+      const url = buildShareUrl(article);
+
       if (navigator.share) {
         navigator.share({
-          title: document.getElementById('modalTitle').innerText,
-          text: "Read this on CJPTV.in - Your News. Your Voice.",
-          url: window.location.href
+          title: article.title,
+          text: `🚨 ${article.title}\n\n${article.summary || ''}\n\nRead on CJPTV.in:`,
+          url: url
         }).catch(() => {});
       } else {
-        navigator.clipboard.writeText(window.location.href);
-        alert("Story link copied to clipboard!");
+        copyToClipboard(url, `Direct news link for "${article.title.substring(0, 30)}..." copied!`);
+      }
+    }
+
+    function copyToClipboard(text, msg) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => showToast(msg)).catch(() => fallbackCopy(text, msg));
+      } else {
+        fallbackCopy(text, msg);
+      }
+    }
+
+    function fallbackCopy(text, msg) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast(msg);
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotification');
+      const toastMsg = document.getElementById('toastMessage');
+      if (toast && toastMsg) {
+        toastMsg.innerText = msg;
+        toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+        setTimeout(() => {
+          toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+        }, 3000);
       }
     }
 
