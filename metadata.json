@@ -1,0 +1,6 @@
+{
+  "name": "CJPTV.in News",
+  "description": "CJPTV.in - Your News. Your Voice. Professional Indian digital news portal and editorial CMS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
