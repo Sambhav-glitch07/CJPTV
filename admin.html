@@ -637,7 +637,110 @@
       }
     }
 
-    // Article Data Management
+    // Default Seed Articles
+    const SEED_ARTICLES = [
+      {
+        id: "art-1786884805799",
+        title: "पटना में पकड़ा गया एक करोड़ का गांजा: पुलिस व मद्य निषेध विभाग की संयुक्त बड़ी कार्रवाई",
+        category: "bihar",
+        categoryName: "Bihar",
+        author: "Sambhav Gupta",
+        date: "Just Now",
+        image: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80",
+        summary: "पटना पुलिस और मद्य निषेध विभाग ने गुप्त सूचना के आधार पर अंतर्राज्यीय तस्कर गिरोह को दबोचकर एक करोड़ रुपये मूल्य का गांजा जब्त किया।",
+        content: "पटना — राजधानी पटना में पुलिस और मद्य निषेध इकाई ने बड़ी संयुक्त कार्रवाई करते हुए अंतर्राज्यीय मादक पदार्थ तस्कर गिरोह के तीन मुख्य सदस्यों को गिरफ्तार कर एक करोड़ रुपये मूल्य का अवैध गांजा बरामद किया है।\n\nपुलिस उपाधीक्षक ने बताया कि गुप्त सूचना के आधार पर चेकपोस्ट पर विशेष नाकाबंदी कर एक कंटेनर वाहन की तलाशी ली गई, जिसमें तहखाने से भारी मात्रा में पैकेट बरामद किए गए। तस्कर गिरोह के पूरे नेटवर्क की जांच की जा रही है।",
+        isFeatured: true,
+        isBreaking: true,
+        isTrending: true,
+        createdAt: Date.now()
+      },
+      {
+        id: "art-1",
+        title: "Patna Metro Construction Fast-Tracked: Underground Tunnel Boring Starts for Corridor 2",
+        category: "bihar",
+        categoryName: "Bihar",
+        author: "Sambhav Gupta",
+        date: "15 mins ago",
+        image: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80",
+        summary: "The Urban Development Department and Patna Metro Rail Corporation have expedited tunneling operations beneath Fraser Road to ensure project completion by mid-2027.",
+        content: "PATNA — The Urban Development Department along with the Patna Metro Rail Corporation (PMRC) announced on Friday that underground tunnel boring machine (TBM) operations have formally commenced for Corridor 2. The project connects Patna Junction to New ISBT via key arterial nodes.\n\nAccording to officials, double-shield tunneling technology is being deployed to minimize surface traffic disruption along Frazer Road and Dak Bungalow crossing. Special environmental sensors have been placed along the perimeter to monitor vibration levels.",
+        isFeatured: false,
+        isBreaking: true,
+        isTrending: true,
+        createdAt: Date.now() - 900000
+      },
+      {
+        id: "art-2",
+        title: "India Renews Historic Clean Energy Pact; Allocates Rs 45,000 Cr for Grid Modernization",
+        category: "india",
+        categoryName: "India",
+        author: "National Bureau",
+        date: "1 hour ago",
+        image: "https://images.unsplash.com/photo-1509391365360-2e959784a276?w=800&q=80",
+        summary: "New initiatives in high-capacity solar corridors and inter-state transmission lines to boost rural and industrial clean power availability.",
+        content: "NEW DELHI — In a landmark policy rollout, the Ministry of Power has greenlit a comprehensive modernization package worth Rs 45,000 Crore aimed at integrating green hydrogen and solar park corridors into the central electricity grid.",
+        isFeatured: false,
+        isTrending: true,
+        createdAt: Date.now() - 3600000
+      },
+      {
+        id: "art-3",
+        title: "Bihar Board Class 10 & 12 Digital Verification System Goes Live Statewide",
+        category: "bihar",
+        categoryName: "Bihar",
+        author: "Education Desk",
+        date: "2 hours ago",
+        image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80",
+        summary: "BSEB introduces QR-code enabled marksheets and instant verification portals for college and job applicants statewide.",
+        content: "PATNA — The Bihar School Examination Board (BSEB) has launched its revamped digital verification portal allowing students, universities, and employers to authenticate academic certificates instantly via secure encrypted QR codes.",
+        isFeatured: false,
+        isTrending: true,
+        createdAt: Date.now() - 7200000
+      },
+      {
+        id: "art-4",
+        title: "Global Tech Summit 2026: New AI Accountability Standards Adopted by 40 Nations",
+        category: "technology",
+        categoryName: "Tech",
+        author: "Tech Bureau",
+        date: "3 hours ago",
+        image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80",
+        summary: "Tech leaders and global diplomats agree on mandatory watermarking for synthetic media and algorithmic safety audits.",
+        content: "GENEVA — Delegates from over forty countries wrapped up the three-day AI Governance Summit by ratifying a unified framework that establishes safety baselines and mandatory watermarks for deep learning systems.",
+        isFeatured: false,
+        isTrending: false,
+        createdAt: Date.now() - 10800000
+      },
+      {
+        id: "art-5",
+        title: "Sensex Surges 680 Points on Strong Auto and Banking Q3 Earnings",
+        category: "business",
+        categoryName: "Business",
+        author: "Markets Desk",
+        date: "4 hours ago",
+        image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80",
+        summary: "Domestic benchmark indices rallied led by heavyweights in auto manufacturing and private sector financial institutions.",
+        content: "MUMBAI — Indian stock indices witnessed bullish momentum on Friday as strong quarterly revenues from key automotive leaders and private lenders spurred sustained domestic institutional buying.",
+        isFeatured: false,
+        isTrending: false,
+        createdAt: Date.now() - 14400000
+      },
+      {
+        id: "art-6",
+        title: "India vs England 3rd Test: Stellar Bowling Attack Puts Hosts in Commanding Position",
+        category: "sports",
+        categoryName: "Sports",
+        author: "Sports Desk",
+        date: "5 hours ago",
+        image: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=800&q=80",
+        summary: "Pacers claim crucial top-order wickets before lunch on Day 3, restricting the visitors to 184 runs in the first innings.",
+        content: "LEEDS — A disciplined spell of reverse swing and sharp seam movement allowed India to dominate the morning session of Day 3, picking up four wickets inside the opening twenty overs.",
+        isFeatured: false,
+        isTrending: false,
+        createdAt: Date.now() - 18000000
+      }
+    ];
+
     // Universal Multi-Device Cloud Sync Relay
     const CLOUD_MASTER_CHANNEL = 'https://ntfy.sh/cjptv_news_master_channel';
     const CLOUD_REST_BACKUP = 'https://api.restful-api.dev/objects/ff8081819ff5b11001a00a9d28a62c34';
@@ -669,10 +772,28 @@
               for (let i = lines.length - 1; i >= 0; i--) {
                 try {
                   const item = JSON.parse(lines[i]);
-                  if (item && item.message) {
+                  // Case 1: Attachment URL
+                  if (item.attachment && item.attachment.url) {
+                    const aRes = await fetch(item.attachment.url, { cache: 'no-store' });
+                    if (aRes.ok) {
+                      const aData = await aRes.json();
+                      if (aData && Array.isArray(aData.articles) && aData.articles.length > 0) {
+                        fetchedArticles = aData.articles;
+                        break;
+                      } else if (Array.isArray(aData) && aData.length > 0) {
+                        fetchedArticles = aData;
+                        break;
+                      }
+                    }
+                  }
+                  // Case 2: Direct JSON message
+                  else if (item.message && (item.message.startsWith('{') || item.message.startsWith('['))) {
                     const payload = JSON.parse(item.message);
                     if (payload && Array.isArray(payload.articles) && payload.articles.length > 0) {
                       fetchedArticles = payload.articles;
+                      break;
+                    } else if (Array.isArray(payload) && payload.length > 0) {
+                      fetchedArticles = payload;
                       break;
                     }
                   }
@@ -735,10 +856,14 @@
 
           const payloadStr = JSON.stringify(payload);
 
-          // 1. Broadcast to Master Channel
+          // 1. Broadcast to Master Channel with Filename header for large payload support
           fetch(CLOUD_MASTER_CHANNEL, {
             method: 'POST',
-            headers: { 'Title': 'NEWS_SYNC' },
+            headers: {
+              'Title': 'NEWS_SYNC',
+              'Filename': 'articles.json',
+              'Content-Type': 'application/json'
+            },
             body: payloadStr
           }).catch(console.warn);
 
@@ -800,11 +925,15 @@
       const saved = localStorage.getItem('cjptv_articles');
       if (saved) {
         try {
-          articles = JSON.parse(saved);
-          return;
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            articles = parsed;
+            return;
+          }
         } catch(e) {}
       }
-      articles = [];
+      articles = SEED_ARTICLES.slice();
+      localStorage.setItem('cjptv_articles', JSON.stringify(articles));
     }
 
     async function saveArticles() {
@@ -822,11 +951,11 @@
       reader.onload = function(event) {
         const img = new Image();
         img.onload = function() {
-          // Resize to max 900px width with high JPEG quality for fast worldwide transmission
+          // Resize to max 800px width with high JPEG quality for fast worldwide transmission
           const canvas = document.createElement('canvas');
           let width = img.width;
           let height = img.height;
-          const maxDim = 900;
+          const maxDim = 800;
 
           if (width > maxDim || height > maxDim) {
             if (width > height) {
@@ -843,8 +972,8 @@
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Get optimized base64 (~35KB-50KB)
-          currentUploadedImageDataUrl = canvas.toDataURL('image/jpeg', 0.78);
+          // Get optimized base64 (~25KB-40KB)
+          currentUploadedImageDataUrl = canvas.toDataURL('image/jpeg', 0.70);
           document.getElementById('imagePreview').src = currentUploadedImageDataUrl;
           document.getElementById('imagePreviewPlaceholder').classList.add('hidden');
           document.getElementById('imagePreview').classList.remove('hidden');
@@ -876,97 +1005,103 @@
     async function handleStorySubmit(e) {
       e.preventDefault();
 
-      const submitBtn = document.getElementById('storySubmitBtn');
-      const originalBtnText = document.getElementById('submitBtnText').innerText;
-      document.getElementById('submitBtnText').innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Syncing Worldwide to Cloud...`;
+      const submitBtn = document.getElementById('submitBtn');
+      const submitBtnText = document.getElementById('submitBtnText');
+      const originalBtnText = submitBtnText ? submitBtnText.innerText : 'Publish Story Live Across All Devices';
+      if (submitBtnText) submitBtnText.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Syncing Worldwide to Cloud...`;
       if (submitBtn) submitBtn.disabled = true;
 
-      const editId = document.getElementById('editingArticleId').value;
-      const title = document.getElementById('storyTitle').value.trim();
-      const category = document.getElementById('storyCategory').value;
-      const categoryName = document.getElementById('storyCategory').options[document.getElementById('storyCategory').selectedIndex].text.split(' ')[0];
-      const author = document.getElementById('storyAuthor').value.trim() || 'Sambhav Gupta';
-      const summary = document.getElementById('storySummary').value.trim();
-      const content = document.getElementById('storyContent').value.trim();
-      const isFeatured = document.getElementById('storyIsFeatured').checked;
-      const isBreaking = document.getElementById('storyIsBreaking').checked;
-      const isTrending = document.getElementById('storyIsTrending').checked;
+      try {
+        const editId = document.getElementById('editingArticleId').value;
+        const title = document.getElementById('storyTitle').value.trim();
+        const category = document.getElementById('storyCategory').value;
+        const categoryName = document.getElementById('storyCategory').options[document.getElementById('storyCategory').selectedIndex].text.split(' ')[0];
+        const author = document.getElementById('storyAuthor').value.trim() || 'Sambhav Gupta';
+        const summary = document.getElementById('storySummary').value.trim();
+        const content = document.getElementById('storyContent').value.trim();
+        const isFeatured = document.getElementById('storyIsFeatured').checked;
+        const isBreaking = document.getElementById('storyIsBreaking').checked;
+        const isTrending = document.getElementById('storyIsTrending').checked;
 
-      const image = currentUploadedImageDataUrl || "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=900&q=80";
+        const image = currentUploadedImageDataUrl || "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=900&q=80";
 
-      // If featured, remove featured from others
-      if (isFeatured) {
-        articles.forEach(a => a.isFeatured = false);
-      }
+        // If featured, remove featured from others
+        if (isFeatured) {
+          articles.forEach(a => a.isFeatured = false);
+        }
 
-      let targetId = editId;
+        let targetId = editId;
 
-      if (editId) {
-        // Update existing story
-        const idx = articles.findIndex(a => String(a.id) === String(editId));
-        if (idx !== -1) {
-          articles[idx] = {
-            ...articles[idx],
+        if (editId) {
+          // Update existing story
+          const idx = articles.findIndex(a => String(a.id) === String(editId));
+          if (idx !== -1) {
+            articles[idx] = {
+              ...articles[idx],
+              title,
+              category,
+              categoryName,
+              author,
+              summary,
+              content,
+              image,
+              isFeatured,
+              isBreaking,
+              isTrending,
+              updatedAt: Date.now()
+            };
+
+            if (db) {
+              db.collection("cjptv_news").doc(String(editId)).set(articles[idx]).catch(console.warn);
+            }
+          }
+        } else {
+          // Create new story
+          const newId = "art-" + Date.now();
+          targetId = newId;
+          const newArticle = {
+            id: newId,
             title,
             category,
             categoryName,
             author,
+            date: "Just Now",
             summary,
             content,
             image,
             isFeatured,
             isBreaking,
             isTrending,
-            updatedAt: Date.now()
+            createdAt: Date.now()
           };
 
+          articles.unshift(newArticle);
+
           if (db) {
-            db.collection("cjptv_news").doc(String(editId)).set(articles[idx]).catch(console.warn);
+            db.collection("cjptv_news").doc(newId).set(newArticle).catch(console.warn);
           }
         }
-      } else {
-        // Create new story
-        const newId = "art-" + Date.now();
-        targetId = newId;
-        const newArticle = {
-          id: newId,
-          title,
-          category,
-          categoryName,
-          author,
-          date: "Just Now",
-          summary,
-          content,
-          image,
-          isFeatured,
-          isBreaking,
-          isTrending,
-          createdAt: Date.now()
-        };
 
-        articles.unshift(newArticle);
+        await saveArticles();
 
-        if (db) {
-          db.collection("cjptv_news").doc(newId).set(newArticle).catch(console.warn);
-        }
+        resetPublishForm();
+        switchTab('manage');
+
+        // Direct headline share prompt
+        const url = new URL(window.location.href);
+        url.pathname = url.pathname.replace('admin.html', 'index.html');
+        url.searchParams.set('news', targetId);
+        url.searchParams.set('title', createSlug(title));
+        const shareUrl = url.toString();
+
+        alert(`🎉 Story Published Live Worldwide!\n\nHeadline: "${title}"\n\nDirect Headline URL:\n${shareUrl}\n\nThis story is now live across all phones, tablets, and computers worldwide.`);
+      } catch(err) {
+        console.error("Story publish error:", err);
+        alert("Error publishing story: " + err.message);
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        if (submitBtnText) submitBtnText.innerText = originalBtnText;
       }
-
-      await saveArticles();
-
-      if (submitBtn) submitBtn.disabled = false;
-      document.getElementById('submitBtnText').innerText = originalBtnText;
-
-      resetPublishForm();
-      switchTab('manage');
-
-      // Direct headline share prompt
-      const url = new URL(window.location.href);
-      url.pathname = url.pathname.replace('admin.html', 'index.html');
-      url.searchParams.set('news', targetId);
-      url.searchParams.set('title', createSlug(title));
-      const shareUrl = url.toString();
-
-      alert(`🎉 Story Published Live Worldwide!\n\nHeadline: "${title}"\n\nDirect Headline URL:\n${shareUrl}\n\nThis story is now live across all phones, tablets, and computers worldwide.`);
     }
 
     function resetPublishForm() {

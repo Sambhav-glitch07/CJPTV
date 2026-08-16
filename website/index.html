@@ -581,6 +581,21 @@
     // Default Seed Articles
     const SEED_ARTICLES = [
       {
+        id: "art-1786884805799",
+        title: "पटना में पकड़ा गया एक करोड़ का गांजा: पुलिस व मद्य निषेध विभाग की संयुक्त बड़ी कार्रवाई",
+        category: "bihar",
+        categoryName: "Bihar",
+        author: "Sambhav Gupta",
+        date: "Just Now",
+        image: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80",
+        summary: "पटना पुलिस और मद्य निषेध विभाग ने गुप्त सूचना के आधार पर अंतर्राज्यीय तस्कर गिरोह को दबोचकर एक करोड़ रुपये मूल्य का गांजा जब्त किया।",
+        content: "पटना — राजधानी पटना में पुलिस और मद्य निषेध इकाई ने बड़ी संयुक्त कार्रवाई करते हुए अंतर्राज्यीय मादक पदार्थ तस्कर गिरोह के तीन मुख्य सदस्यों को गिरफ्तार कर एक करोड़ रुपये मूल्य का अवैध गांजा बरामद किया है।\n\nपुलिस उपाधीक्षक ने बताया कि गुप्त सूचना के आधार पर चेकपोस्ट पर विशेष नाकाबंदी कर एक कंटेनर वाहन की तलाशी ली गई, जिसमें तहखाने से भारी मात्रा में पैकेट बरामद किए गए। तस्कर गिरोह के पूरे नेटवर्क की जांच की जा रही है।",
+        isFeatured: true,
+        isBreaking: true,
+        isTrending: true,
+        createdAt: Date.now()
+      },
+      {
         id: "art-1",
         title: "Patna Metro Construction Fast-Tracked: Underground Tunnel Boring Starts for Corridor 2",
         category: "bihar",
@@ -590,9 +605,10 @@
         image: "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80",
         summary: "The Urban Development Department and Patna Metro Rail Corporation have expedited tunneling operations beneath Fraser Road to ensure project completion by mid-2027.",
         content: "PATNA — The Urban Development Department along with the Patna Metro Rail Corporation (PMRC) announced on Friday that underground tunnel boring machine (TBM) operations have formally commenced for Corridor 2. The project connects Patna Junction to New ISBT via key arterial nodes.\n\nAccording to officials, double-shield tunneling technology is being deployed to minimize surface traffic disruption along Frazer Road and Dak Bungalow crossing. Special environmental sensors have been placed along the perimeter to monitor vibration levels.",
-        isFeatured: true,
+        isFeatured: false,
+        isBreaking: true,
         isTrending: true,
-        createdAt: Date.now()
+        createdAt: Date.now() - 900000
       },
       {
         id: "art-2",
@@ -724,14 +740,34 @@
               for (let i = lines.length - 1; i >= 0; i--) {
                 try {
                   const item = JSON.parse(lines[i]);
-                  if (item && item.message) {
+                  // Case 1: Attachment URL (Used for photos & full news bundles)
+                  if (item.attachment && item.attachment.url) {
+                    const aRes = await fetch(item.attachment.url, { cache: 'no-store' });
+                    if (aRes.ok) {
+                      const aData = await aRes.json();
+                      if (aData && Array.isArray(aData.articles) && aData.articles.length > 0) {
+                        fetchedArticles = aData.articles;
+                        break;
+                      } else if (Array.isArray(aData) && aData.length > 0) {
+                        fetchedArticles = aData;
+                        break;
+                      }
+                    }
+                  }
+                  // Case 2: Direct JSON Message
+                  else if (item.message && (item.message.startsWith('{') || item.message.startsWith('['))) {
                     const payload = JSON.parse(item.message);
                     if (payload && Array.isArray(payload.articles) && payload.articles.length > 0) {
                       fetchedArticles = payload.articles;
                       break;
+                    } else if (Array.isArray(payload) && payload.length > 0) {
+                      fetchedArticles = payload;
+                      break;
                     }
                   }
-                } catch(err) {}
+                } catch(err) {
+                  // Skip invalid individual line
+                }
               }
             }
           } catch(e) {
@@ -792,10 +828,14 @@
 
           const payloadStr = JSON.stringify(payload);
 
-          // 1. Push to Master Channel
+          // 1. Push to Master Channel with Filename header for reliable large attachments
           fetch(CLOUD_MASTER_CHANNEL, {
             method: 'POST',
-            headers: { 'Title': 'NEWS_SYNC' },
+            headers: {
+              'Title': 'NEWS_SYNC',
+              'Filename': 'articles.json',
+              'Content-Type': 'application/json'
+            },
             body: payloadStr
           }).catch(console.warn);
 
