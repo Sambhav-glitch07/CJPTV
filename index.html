@@ -107,9 +107,9 @@
       <span class="text-amber-400 flex items-center gap-1">
         <i class="fa-solid fa-sun"></i> 32°C Patna
       </span>
-      <a href="admin.html" class="hidden sm:inline-flex items-center gap-1 text-[#FF8A65] hover:text-white font-semibold transition">
-        <i class="fa-solid fa-lock text-[10px]"></i> Admin Desk
-      </a>
+      <span class="text-emerald-400 font-semibold hidden lg:inline-flex items-center gap-1">
+        <i class="fa-solid fa-bolt text-[10px]"></i> 24x7 Live Desk
+      </span>
     </div>
   </div>
 
@@ -117,7 +117,7 @@
   <header class="bg-[#1A1A1A] border-b border-[#303030] sticky top-0 z-40 shadow-xl">
     <div class="max-w-7xl mx-auto px-4 sm:px-8 py-3.5 flex items-center justify-between">
       
-      <!-- Left: Hamburger Menu & Admin Shortcut -->
+      <!-- Left: Hamburger Menu -->
       <div class="flex items-center space-x-3">
         <button onclick="toggleMenu()" class="w-10 h-10 rounded-full bg-[#242424] border border-[#333333] flex items-center justify-center text-gray-300 hover:text-white hover:border-[#FF5722] transition" title="Open Navigation Menu">
           <i class="fa-solid fa-bars text-base"></i>
@@ -138,15 +138,15 @@
         </div>
       </div>
 
-      <!-- Right: Search & Direct Admin Button -->
+      <!-- Right: Search & Actions -->
       <div class="flex items-center space-x-2.5">
         <button onclick="openSearchModal()" class="w-10 h-10 rounded-full bg-[#242424] border border-[#333333] flex items-center justify-center text-gray-300 hover:text-white hover:border-[#FF5722] transition" title="Search Stories">
           <i class="fa-solid fa-magnifying-glass"></i>
         </button>
-        <a href="admin.html" class="flex items-center space-x-1.5 bg-[#FF5722] hover:bg-orange-600 text-white text-xs font-bold px-3.5 py-2 rounded-full transition shadow-md">
-          <i class="fa-solid fa-gauge text-[11px]"></i>
-          <span class="hidden sm:inline">Admin</span> Panel
-        </a>
+        <button onclick="openAboutModal()" class="hidden sm:flex items-center space-x-1.5 bg-[#252525] hover:bg-[#2F2F2F] border border-[#3A3A3A] text-gray-200 hover:text-white text-xs font-bold px-3.5 py-2 rounded-full transition shadow-md">
+          <i class="fa-solid fa-circle-info text-[#FF5722]"></i>
+          <span>About Us</span>
+        </button>
       </div>
     </div>
 
@@ -340,17 +340,17 @@
           </ul>
         </div>
 
-        <!-- Col 3: Quick Links & Admin Access -->
+        <!-- Col 3: Quick Links & Newsroom Info -->
         <div>
-          <h4 class="text-xs font-extrabold uppercase tracking-wider text-white mb-4">Newsroom & Legal</h4>
+          <h4 class="text-xs font-extrabold uppercase tracking-wider text-white mb-4">Newsroom & Trust</h4>
           <ul class="space-y-2.5 text-xs">
             <li><button onclick="openAboutModal()" class="hover:text-[#FF5722] transition">About Founder & Mission</button></li>
             <li><button onclick="openPolicyModal('terms')" class="hover:text-[#FF5722] transition">Code of Ethics & Standards</button></li>
             <li><button onclick="openPolicyModal('privacy')" class="hover:text-[#FF5722] transition">Privacy Policy</button></li>
             <li><button onclick="openPolicyModal('contact')" class="hover:text-[#FF5722] transition">Press Inquiries & Contact</button></li>
             <li class="pt-2 border-t border-[#262626]">
-              <a href="admin.html" class="text-[#FF8A65] hover:text-white transition flex items-center gap-1.5 font-bold">
-                <i class="fa-solid fa-lock text-xs"></i> Open Admin Desk
+              <a href="admin.html" class="text-gray-500 hover:text-gray-300 transition flex items-center gap-1.5 text-[11px]" title="Editorial Staff Gate (PIN Protected)">
+                <i class="fa-solid fa-lock text-[10px]"></i> Staff Login
               </a>
             </li>
           </ul>
@@ -359,7 +359,9 @@
       </div>
 
       <div class="border-t border-[#242424] pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500">
-        <div>© 2026 CJPTV.in. All Rights Reserved. Founded by Sambhav Gupta.</div>
+        <div id="footerBrandText" class="cursor-default select-none" title="CJPTV.in Digital Network">
+          © 2026 CJPTV.in. All Rights Reserved. Founded by Sambhav Gupta.
+        </div>
         <div class="mt-2 sm:mt-0 flex space-x-4">
           <span>Fast</span>
           <span>•</span>
@@ -436,11 +438,8 @@
         </div>
       </div>
 
-      <div class="pt-4 border-t border-[#282828]">
-        <a href="admin.html" class="w-full text-center py-2.5 px-3 bg-[#FF5722] hover:bg-orange-600 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md transition">
-          <i class="fa-solid fa-shield-halved"></i>
-          <span>Open Newsroom Admin Desk</span>
-        </a>
+      <div class="pt-4 border-t border-[#282828] text-center">
+        <p class="text-[11px] text-gray-500">CJPTV.in • Patna, Bihar</p>
       </div>
     </div>
   </div>
@@ -1384,6 +1383,30 @@
     function openPolicyModal(type) {
       alert("CJPTV.in adheres strictly to the Digital Media Ethics Code & Press Council of India standards. For press grievances, reach out to editorial@cjptv.in.");
     }
+
+    // Discreet Staff Hotkey (Ctrl+Shift+A or Cmd+Shift+A) & Footer Click Trigger
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        window.location.href = 'admin.html';
+      }
+    });
+
+    let brandClickCount = 0;
+    let brandClickTimer = null;
+    document.addEventListener('DOMContentLoaded', () => {
+      const footerBrand = document.getElementById('footerBrandText');
+      if (footerBrand) {
+        footerBrand.addEventListener('click', () => {
+          brandClickCount++;
+          clearTimeout(brandClickTimer);
+          brandClickTimer = setTimeout(() => { brandClickCount = 0; }, 1200);
+          if (brandClickCount >= 3) {
+            window.location.href = 'admin.html';
+          }
+        });
+      }
+    });
   </script>
 </body>
 </html>
