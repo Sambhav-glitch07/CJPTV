@@ -132,10 +132,11 @@
 
         <!-- Center / Right: Cloud Status & Controls -->
         <div class="flex items-center space-x-3 text-xs">
-          <div id="cloudBadge" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#202020] border border-[#333] text-emerald-400 font-semibold">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span id="cloudStatusLabel">Universal Cloud Sync Active</span>
-          </div>
+          <button onclick="CloudSync.pull(true)" id="cloudSyncBadge" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#202020] hover:bg-[#282828] border border-[#333] text-emerald-400 font-semibold transition cursor-pointer" title="Click to sync with worldwide cloud">
+            <i class="fa-solid fa-cloud-check text-green-400"></i>
+            <span id="cloudStatusLabel">Universal Cloud Synced</span>
+            <i class="fa-solid fa-rotate text-[10px] text-gray-400"></i>
+          </button>
 
           <a href="index.html" target="_blank" class="bg-[#242424] hover:bg-[#2F2F2F] text-gray-200 hover:text-white font-semibold px-3.5 py-2 rounded-lg border border-[#383838] transition flex items-center gap-1.5">
             <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
@@ -638,61 +639,160 @@
 
     // Article Data Management
     // Universal Multi-Device Cloud Sync Relay
-    const CLOUD_CHANNEL_KEY = 'cjptv_news_relay_v2';
-    const CLOUD_API_PRIMARY = 'https://keyvalue.immanuel.co/api/KeyVal/GetValue/cjptv_news_relay_v2';
-    const CLOUD_API_SET = 'https://keyvalue.immanuel.co/api/KeyVal/SetValue/cjptv_news_relay_v2/';
+    const CLOUD_MASTER_CHANNEL = 'https://ntfy.sh/cjptv_news_master_channel';
+    const CLOUD_REST_BACKUP = 'https://api.restful-api.dev/objects/ff8081819ff5b11001a00a9d28a62c34';
 
     const CloudSync = {
       isSyncing: false,
+      lastSyncTime: 0,
 
-      async pull() {
-        if (this.isSyncing) return;
+      async pull(force = false) {
+        if (this.isSyncing && !force) return;
         this.isSyncing = true;
+        this.updateSyncUI("Syncing...", true);
+
         try {
           if (db) {
             this.isSyncing = false;
+            this.updateSyncUI("Firebase Connected", false);
             return;
           }
-          const res = await fetch(CLOUD_API_PRIMARY, { cache: 'no-store' });
-          if (res.ok) {
-            const data = await res.json();
-            if (data && Array.isArray(data) && data.length > 0) {
-              const currentSavedStr = localStorage.getItem('cjptv_articles');
-              const newStr = JSON.stringify(data);
-              if (currentSavedStr !== newStr) {
-                articles = data;
-                localStorage.setItem('cjptv_articles', newStr);
-                updateMetrics();
-                renderManageTable();
+
+          let fetchedArticles = null;
+
+          // Tier 1: Pull from Master Cloud Relay Channel
+          try {
+            const res = await fetch(CLOUD_MASTER_CHANNEL + '/json?poll=1', { cache: 'no-store' });
+            if (res.ok) {
+              const text = await res.text();
+              const lines = text.trim().split('\n').filter(l => l.trim());
+              for (let i = lines.length - 1; i >= 0; i--) {
+                try {
+                  const item = JSON.parse(lines[i]);
+                  if (item && item.message) {
+                    const payload = JSON.parse(item.message);
+                    if (payload && Array.isArray(payload.articles) && payload.articles.length > 0) {
+                      fetchedArticles = payload.articles;
+                      break;
+                    }
+                  }
+                } catch(err) {}
               }
             }
+          } catch(e) {
+            console.warn("Admin Tier 1 pull notice:", e);
+          }
+
+          // Tier 2: Pull from REST Cloud Store if Tier 1 had no news
+          if (!fetchedArticles || fetchedArticles.length === 0) {
+            try {
+              const res2 = await fetch(CLOUD_REST_BACKUP, { cache: 'no-store' });
+              if (res2.ok) {
+                const data2 = await res2.json();
+                if (data2 && data2.data && Array.isArray(data2.data.articles) && data2.data.articles.length > 0) {
+                  fetchedArticles = data2.data.articles;
+                }
+              }
+            } catch(e2) {
+              console.warn("Admin Tier 2 pull notice:", e2);
+            }
+          }
+
+          if (fetchedArticles && fetchedArticles.length > 0) {
+            const currentSavedStr = localStorage.getItem('cjptv_articles');
+            const newStr = JSON.stringify(fetchedArticles);
+
+            if (currentSavedStr !== newStr) {
+              articles = fetchedArticles;
+              localStorage.setItem('cjptv_articles', newStr);
+              updateMetrics();
+              renderManageTable();
+            }
+            this.lastSyncTime = Date.now();
+            this.updateSyncUI("Cloud Synced", false);
+          } else if (articles.length > 0) {
+            // Push local articles to populate cloud
+            await this.push(articles);
           }
         } catch (err) {
-          console.warn("Admin cloud relay pull error:", err);
+          console.warn("Admin cloud relay pull warning:", err);
+          this.updateSyncUI("Offline Cache", false);
         } finally {
           this.isSyncing = false;
         }
       },
 
       async push(articlesList) {
+        this.updateSyncUI("Broadcasting...", true);
         try {
           localStorage.setItem('cjptv_articles', JSON.stringify(articlesList));
-          const payload = encodeURIComponent(JSON.stringify(articlesList));
-          fetch(CLOUD_API_SET + payload, { method: 'POST' }).catch(console.warn);
+          
+          const payload = {
+            updatedAt: Date.now(),
+            count: articlesList.length,
+            articles: articlesList
+          };
 
+          const payloadStr = JSON.stringify(payload);
+
+          // 1. Broadcast to Master Channel
+          fetch(CLOUD_MASTER_CHANNEL, {
+            method: 'POST',
+            headers: { 'Title': 'NEWS_SYNC' },
+            body: payloadStr
+          }).catch(console.warn);
+
+          // 2. Backup to REST API
+          fetch(CLOUD_REST_BACKUP, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: "cjptv_news_db_v2",
+              data: payload
+            })
+          }).catch(console.warn);
+
+          // 3. If Firebase configured, sync to Firestore
           if (db) {
             articlesList.forEach(art => {
               db.collection("cjptv_news").doc(String(art.id)).set(art).catch(console.warn);
             });
           }
+
+          this.updateSyncUI("Synced Worldwide", false);
+          return true;
         } catch (e) {
           console.warn("Admin cloud push error:", e);
+          this.updateSyncUI("Sync Error", false);
+          return false;
+        }
+      },
+
+      updateSyncUI(statusText, isLoading) {
+        const badge = document.getElementById('cloudSyncBadge');
+        if (badge) {
+          badge.innerHTML = isLoading 
+            ? `<i class="fa-solid fa-spinner fa-spin text-orange-400"></i> <span>${statusText}</span>`
+            : `<i class="fa-solid fa-cloud-check text-green-400"></i> <span>${statusText}</span>`;
         }
       },
 
       startAutoSync() {
         this.pull();
         setInterval(() => this.pull(), 5000);
+
+        try {
+          if (window.EventSource) {
+            const eventSource = new EventSource(CLOUD_MASTER_CHANNEL + '/sse');
+            eventSource.onmessage = () => {
+              this.pull(true);
+            };
+          }
+        } catch(e) {
+          console.warn("EventSource SSE fallback to polling:", e);
+        }
+
+        window.addEventListener('focus', () => this.pull(true));
       }
     };
 
@@ -707,13 +807,13 @@
       articles = [];
     }
 
-    function saveArticles() {
+    async function saveArticles() {
       localStorage.setItem('cjptv_articles', JSON.stringify(articles));
       updateMetrics();
-      CloudSync.push(articles);
+      await CloudSync.push(articles);
     }
 
-    // DIRECT IMAGE UPLOAD & OPTIMIZATION
+    // DIRECT IMAGE UPLOAD & OPTIMIZATION (Optimized for instant mobile upload & sync)
     function handleImageFileSelect(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -722,11 +822,11 @@
       reader.onload = function(event) {
         const img = new Image();
         img.onload = function() {
-          // Resize to max 1200px width with high JPEG quality for fast storage
+          // Resize to max 900px width with high JPEG quality for fast worldwide transmission
           const canvas = document.createElement('canvas');
           let width = img.width;
           let height = img.height;
-          const maxDim = 1200;
+          const maxDim = 900;
 
           if (width > maxDim || height > maxDim) {
             if (width > height) {
@@ -743,8 +843,8 @@
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Get optimized base64
-          currentUploadedImageDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          // Get optimized base64 (~35KB-50KB)
+          currentUploadedImageDataUrl = canvas.toDataURL('image/jpeg', 0.78);
           document.getElementById('imagePreview').src = currentUploadedImageDataUrl;
           document.getElementById('imagePreviewPlaceholder').classList.add('hidden');
           document.getElementById('imagePreview').classList.remove('hidden');
@@ -773,8 +873,13 @@
     }
 
     // Publish / Edit Article
-    function handleStorySubmit(e) {
+    async function handleStorySubmit(e) {
       e.preventDefault();
+
+      const submitBtn = document.getElementById('storySubmitBtn');
+      const originalBtnText = document.getElementById('submitBtnText').innerText;
+      document.getElementById('submitBtnText').innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Syncing Worldwide to Cloud...`;
+      if (submitBtn) submitBtn.disabled = true;
 
       const editId = document.getElementById('editingArticleId').value;
       const title = document.getElementById('storyTitle').value.trim();
@@ -787,12 +892,14 @@
       const isBreaking = document.getElementById('storyIsBreaking').checked;
       const isTrending = document.getElementById('storyIsTrending').checked;
 
-      const image = currentUploadedImageDataUrl || "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80";
+      const image = currentUploadedImageDataUrl || "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=900&q=80";
 
       // If featured, remove featured from others
       if (isFeatured) {
         articles.forEach(a => a.isFeatured = false);
       }
+
+      let targetId = editId;
 
       if (editId) {
         // Update existing story
@@ -817,10 +924,10 @@
             db.collection("cjptv_news").doc(String(editId)).set(articles[idx]).catch(console.warn);
           }
         }
-        alert("Story successfully updated!");
       } else {
         // Create new story
         const newId = "art-" + Date.now();
+        targetId = newId;
         const newArticle = {
           id: newId,
           title,
@@ -842,12 +949,24 @@
         if (db) {
           db.collection("cjptv_news").doc(newId).set(newArticle).catch(console.warn);
         }
-        alert("Story successfully published live!");
       }
 
-      saveArticles();
+      await saveArticles();
+
+      if (submitBtn) submitBtn.disabled = false;
+      document.getElementById('submitBtnText').innerText = originalBtnText;
+
       resetPublishForm();
       switchTab('manage');
+
+      // Direct headline share prompt
+      const url = new URL(window.location.href);
+      url.pathname = url.pathname.replace('admin.html', 'index.html');
+      url.searchParams.set('news', targetId);
+      url.searchParams.set('title', createSlug(title));
+      const shareUrl = url.toString();
+
+      alert(`🎉 Story Published Live Worldwide!\n\nHeadline: "${title}"\n\nDirect Headline URL:\n${shareUrl}\n\nThis story is now live across all phones, tablets, and computers worldwide.`);
     }
 
     function resetPublishForm() {

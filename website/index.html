@@ -96,10 +96,11 @@
       </span>
       <span class="hidden sm:inline text-gray-600">|</span>
       <span id="currentDate" class="hidden sm:inline text-gray-400"></span>
-      <span class="hidden md:inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded bg-[#242424] text-emerald-400 border border-[#333]">
+      <button onclick="CloudSync.pull(true)" class="hidden md:inline-flex items-center gap-1.5 text-[11px] px-2.5 py-0.5 rounded bg-[#242424] hover:bg-[#303030] text-emerald-400 border border-[#333] transition cursor-pointer" title="Click to refresh latest stories worldwide">
         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
         <span id="cloudStatusText">Live Cloud Sync</span>
-      </span>
+        <i class="fa-solid fa-rotate text-[10px] text-gray-400 hover:text-white"></i>
+      </button>
     </div>
     <div class="flex items-center space-x-4 text-[11px]">
       <span class="font-semibold text-gray-300">EDITION: PATNA / NATIONAL</span>
@@ -696,47 +697,83 @@
     let activeArticle = null;
 
     // Universal Multi-Device Cloud Sync Relay
-    const CLOUD_CHANNEL_KEY = 'cjptv_news_relay_v2';
-    const CLOUD_API_PRIMARY = 'https://keyvalue.immanuel.co/api/KeyVal/GetValue/cjptv_news_relay_v2';
-    const CLOUD_API_SET = 'https://keyvalue.immanuel.co/api/KeyVal/SetValue/cjptv_news_relay_v2/';
+    const CLOUD_MASTER_CHANNEL = 'https://ntfy.sh/cjptv_news_master_channel';
+    const CLOUD_REST_BACKUP = 'https://api.restful-api.dev/objects/ff8081819ff5b11001a00a9d28a62c34';
 
     const CloudSync = {
       isSyncing: false,
+      lastSyncTimestamp: 0,
 
-      async pull() {
-        if (this.isSyncing) return;
+      async pull(force = false) {
+        if (this.isSyncing && !force) return;
         this.isSyncing = true;
         try {
-          // If custom Firebase is connected, Firestore real-time listener will handle updates
           if (db) {
             this.isSyncing = false;
             return;
           }
 
-          const res = await fetch(CLOUD_API_PRIMARY, { cache: 'no-store' });
-          if (res.ok) {
-            const data = await res.json();
-            if (data && Array.isArray(data) && data.length > 0) {
-              const currentSavedStr = localStorage.getItem('cjptv_articles');
-              const newStr = JSON.stringify(data);
-              if (currentSavedStr !== newStr) {
-                currentArticles = data;
-                localStorage.setItem('cjptv_articles', newStr);
-                renderAll();
-                updateCloudStatusBadge(true, data.length);
-                checkPendingDeepLink();
-              } else {
-                updateCloudStatusBadge(true, data.length);
+          let fetchedArticles = null;
+
+          // Tier 1: Pull from Master Cloud Relay Channel
+          try {
+            const res = await fetch(CLOUD_MASTER_CHANNEL + '/json?poll=1', { cache: 'no-store' });
+            if (res.ok) {
+              const text = await res.text();
+              const lines = text.trim().split('\n').filter(l => l.trim());
+              for (let i = lines.length - 1; i >= 0; i--) {
+                try {
+                  const item = JSON.parse(lines[i]);
+                  if (item && item.message) {
+                    const payload = JSON.parse(item.message);
+                    if (payload && Array.isArray(payload.articles) && payload.articles.length > 0) {
+                      fetchedArticles = payload.articles;
+                      break;
+                    }
+                  }
+                } catch(err) {}
               }
+            }
+          } catch(e) {
+            console.warn("Tier 1 pull notice:", e);
+          }
+
+          // Tier 2: Pull from REST Cloud Store if Tier 1 had no news
+          if (!fetchedArticles || fetchedArticles.length === 0) {
+            try {
+              const res2 = await fetch(CLOUD_REST_BACKUP, { cache: 'no-store' });
+              if (res2.ok) {
+                const data2 = await res2.json();
+                if (data2 && data2.data && Array.isArray(data2.data.articles) && data2.data.articles.length > 0) {
+                  fetchedArticles = data2.data.articles;
+                }
+              }
+            } catch(e2) {
+              console.warn("Tier 2 pull notice:", e2);
+            }
+          }
+
+          if (fetchedArticles && fetchedArticles.length > 0) {
+            const currentSavedStr = localStorage.getItem('cjptv_articles');
+            const newStr = JSON.stringify(fetchedArticles);
+
+            if (currentSavedStr !== newStr) {
+              currentArticles = fetchedArticles;
+              localStorage.setItem('cjptv_articles', newStr);
+              renderAll();
+              updateCloudStatusBadge(true, fetchedArticles.length);
+              checkPendingDeepLink();
             } else {
-              // Initial push if cloud was empty
-              if (currentArticles && currentArticles.length > 0) {
-                this.push(currentArticles);
-              }
+              updateCloudStatusBadge(true, fetchedArticles.length);
+            }
+          } else {
+            // If cloud is brand new, push current local articles to initialize
+            if (currentArticles && currentArticles.length > 0) {
+              this.push(currentArticles);
             }
           }
         } catch (err) {
-          console.warn("Cloud relay sync check:", err);
+          console.warn("Cloud relay sync check warning:", err);
           updateCloudStatusBadge(false);
         } finally {
           this.isSyncing = false;
@@ -747,11 +784,32 @@
         try {
           localStorage.setItem('cjptv_articles', JSON.stringify(articlesList));
           
-          // Broadcast to Cloud KV Relay for instant sync to other phones
-          const payload = encodeURIComponent(JSON.stringify(articlesList));
-          fetch(CLOUD_API_SET + payload, { method: 'POST' }).catch(console.warn);
+          const payload = {
+            updatedAt: Date.now(),
+            count: articlesList.length,
+            articles: articlesList
+          };
 
-          // If Firebase is configured, sync to Firestore as well
+          const payloadStr = JSON.stringify(payload);
+
+          // 1. Push to Master Channel
+          fetch(CLOUD_MASTER_CHANNEL, {
+            method: 'POST',
+            headers: { 'Title': 'NEWS_SYNC' },
+            body: payloadStr
+          }).catch(console.warn);
+
+          // 2. Backup to REST API
+          fetch(CLOUD_REST_BACKUP, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: "cjptv_news_db_v2",
+              data: payload
+            })
+          }).catch(console.warn);
+
+          // 3. If Firebase is configured
           if (db) {
             articlesList.forEach(art => {
               db.collection("cjptv_news").doc(String(art.id)).set(art).catch(console.warn);
@@ -765,13 +823,25 @@
 
       startAutoSync() {
         this.pull();
-        // Poll every 5 seconds for newly published stories from any other phone
+        // Poll every 5 seconds
         setInterval(() => this.pull(), 5000);
 
+        // Real-time instant SSE listener (Server-Sent Events for instant global push)
+        try {
+          if (window.EventSource) {
+            const eventSource = new EventSource(CLOUD_MASTER_CHANNEL + '/sse');
+            eventSource.onmessage = () => {
+              this.pull(true);
+            };
+          }
+        } catch(e) {
+          console.warn("SSE fallback to polling:", e);
+        }
+
         // Immediate sync on page focus/re-visit
-        window.addEventListener('focus', () => this.pull());
+        window.addEventListener('focus', () => this.pull(true));
         document.addEventListener('visibilitychange', () => {
-          if (document.visibilityState === 'visible') this.pull();
+          if (document.visibilityState === 'visible') this.pull(true);
         });
       }
     };
